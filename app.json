@@ -13,7 +13,6 @@
       "package": "com.finatic.app",
       "permissions": [
         "android.permission.READ_SMS",
-        "android.permission.RECEIVE_SMS",
         "android.permission.INTERNET",
         "android.permission.WAKE_LOCK"
       ],
