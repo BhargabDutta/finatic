@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "finatic",
+    "name": "Finatic",
     "slug": "finatic",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,8 +10,15 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.finatic.app",
+      "permissions": [
+        "android.permission.READ_SMS",
+        "android.permission.RECEIVE_SMS",
+        "android.permission.INTERNET",
+        "android.permission.WAKE_LOCK"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FFE600",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,6 +27,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font",
+      "expo-status-bar"
+    ]
   }
 }
