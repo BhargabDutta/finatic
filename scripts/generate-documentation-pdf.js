@@ -1,0 +1,783 @@
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FINATIC // MANDATE RADAR - Technical Specification & Hackathon Alignment</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111;
+    background: #fff;
+    line-height: 1.55;
+    font-size: 10.5pt;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 800;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    font-size: 24pt;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-size: 14pt;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+    border-bottom: 2.5px solid #000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin-bottom: 10px;
+    color: #222;
+  }
+
+  .lead {
+    font-size: 11.5pt;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 16px;
+  }
+
+  .cover-header {
+    background: #FFE600;
+    border: 3px solid #000;
+    padding: 24px 20px;
+    box-shadow: 5px 5px 0px #000;
+    margin-bottom: 24px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: #000;
+    color: #FFE600;
+    font-weight: 800;
+    font-size: 8pt;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    border: 1px solid #000;
+  }
+
+  .badge-tag {
+    background: #FF3366;
+    color: #fff;
+    font-weight: 800;
+    font-size: 7.5pt;
+    padding: 2px 6px;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 2px solid #000;
+    font-size: 8.5pt;
+  }
+
+  .meta-item strong {
+    display: block;
+    font-size: 7.5pt;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .card {
+    border: 2px solid #000;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    background: #FAFAFA;
+    box-shadow: 3px 3px 0px #000;
+    page-break-inside: avoid;
+  }
+
+  .card-highlight {
+    background: #FFFDE6;
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0px #000;
+  }
+
+  .card-danger {
+    background: #FFF0F3;
+    border: 2px solid #FF3366;
+    box-shadow: 3px 3px 0px #000;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 18px 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1.5px solid #000;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #FFE600;
+    color: #000;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  tr:nth-child(even) td {
+    background: #F9F9F9;
+  }
+
+  code {
+    font-family: "SF Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 8.5pt;
+    background: #EEE;
+    border: 1px solid #CCC;
+    padding: 1px 4px;
+    font-weight: 600;
+    color: #900;
+  }
+
+  pre {
+    font-family: "SF Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 8pt;
+    background: #111;
+    color: #00FF66;
+    padding: 12px 14px;
+    border: 2px solid #000;
+    box-shadow: 3px 3px 0px #000;
+    overflow-x: auto;
+    margin-bottom: 14px;
+    line-height: 1.45;
+    page-break-inside: avoid;
+  }
+
+  .diagram-container {
+    border: 2px solid #000;
+    background: #FFFFFF;
+    padding: 14px;
+    margin: 14px 0 18px 0;
+    box-shadow: 4px 4px 0px #000;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+
+  .diagram-title {
+    font-weight: 800;
+    font-size: 9pt;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1.5px solid #EEE;
+    padding-bottom: 6px;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  ul, ol {
+    margin-left: 20px;
+    margin-bottom: 12px;
+    font-size: 9.5pt;
+  }
+
+  li {
+    margin-bottom: 5px;
+  }
+
+  .alert-box {
+    border-left: 6px solid #000;
+    padding: 10px 14px;
+    background: #F3F3F3;
+    margin: 12px 0;
+    font-size: 9pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER / HEADER -->
+<div class="cover-header">
+  <div class="badge">MISSION SPECIFICATION // HACKATHON 2026</div>
+  <h1>FINATIC // MANDATE RADAR</h1>
+  <p class="lead" style="margin-bottom: 6px;"><b>The Auto-Debit Assassin:</b> Discovering Hidden Recurring Commitments, Decoding Cryptic Descriptors, Catching Silent Price Creeps & Generating Graph-Powered Cancellation Kill-Switches.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><strong>Target Track</strong>The Auto Debits Nobody Can Find</div>
+    <div class="meta-item"><strong>Sponsor Award</strong>Best Use of Neo4j Graph DB</div>
+    <div class="meta-item"><strong>Platform</strong>Android / React Native + Cloud Graph</div>
+    <div class="meta-item"><strong>Status</strong>Ready for Implementation</div>
+  </div>
+</div>
+
+<!-- SECTION 1 -->
+<h2>1. Executive Summary & Problem Landscape</h2>
+
+<p class="lead">Recurring payments pile up quietly over the years: subscriptions, premium apps used twice, trials that stealthily convert, and prices that creep up unnoticed. The problem statement <i>"The Auto Debits Nobody Can Find"</i> highlights a fundamental breakdown in modern consumer banking.</p>
+
+<div class="grid-2">
+  <div class="card card-danger">
+    <h3 style="color:#FF3366;">Why Current Banking Systems Fail</h3>
+    <ul>
+      <li><b>Machine Descriptors:</b> Statements display cryptic strings like <code>ACH*AMZN*PRM*99*BLR</code> or <code>BILLDESK*NFLX*MUM</code> instead of human brand names.</li>
+      <li><b>Fragmented Mandate Hubs:</b> Autopays are scattered across bank netbanking, UPI apps (GPay, PhonePe), and cards with zero unified dashboard.</li>
+      <li><b>Deliberate Friction ("Dark Patterns"):</b> Merchants intentionally obscure cancellation paths and offer no incentive to explain how to stop charges.</li>
+      <li><b>Invisible Price Creeps:</b> Mandates permit variable or upper-limit deductions; price bumps happen silently without requiring re-authentication.</li>
+    </ul>
+  </div>
+  <div class="card card-highlight">
+    <h3 style="color:#000;">Finatic's Dual Solution Matrix</h3>
+    <ul>
+      <li><b>On-Device Radar (Finatic App):</b> Real-time SMS and statement ingestion, NLP regex entity parser, and instant Brutalist user dashboard.</li>
+      <li><b>Neo4j Mandate Knowledge Graph:</b> Transforms isolated transaction strings into an interconnected network connecting bank accounts, raw descriptors, merchant corporate entities, payment rails, and cancellation DAGs.</li>
+      <li><b>The "Annual Bleed" Trigger:</b> Aggregates recurring leakages into a stark yearly loss total (e.g., <i>"₹58,400/year"</i>) to shatter consumer inertia.</li>
+      <li><b>Actionable Runbooks:</b> Step-by-step kill-switches tailored to the specific payment mechanism, including merchant ghosting protocols.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- DIAGRAM 1: END-TO-END PIPELINE -->
+<div class="diagram-container">
+  <div class="diagram-title">
+    <span>Figure 1: End-to-End System Pipeline & Architecture</span>
+    <span style="color:#777;">Data Ingestion ➔ Graph Engine ➔ Threat Radar ➔ UI</span>
+  </div>
+  <svg viewBox="0 0 780 200" width="100%" height="200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background styling -->
+    <rect width="780" height="200" fill="#FAFAFA" stroke="#000" stroke-width="1.5"/>
+    
+    <!-- Stage 1: Ingestion -->
+    <rect x="20" y="30" width="160" height="140" fill="#FFE600" stroke="#000" stroke-width="2.5" rx="2"/>
+    <text x="100" y="55" font-family="sans-serif" font-weight="800" font-size="11" text-anchor="middle" fill="#000">1. INGESTION LAYER</text>
+    <rect x="35" y="70" width="130" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    <text x="100" y="87" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Synthetic Statements</text>
+    <rect x="35" y="105" width="130" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    <text x="100" y="122" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Payment SMS Stream</text>
+    <text x="100" y="152" font-family="sans-serif" font-size="7.5" fill="#333" text-anchor="middle">UPI / Card / NACH / SI</text>
+
+    <!-- Arrow 1 -->
+    <line x1="180" y1="100" x2="215" y2="100" stroke="#000" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- Stage 2: Tokenizer -->
+    <rect x="215" y="30" width="160" height="140" fill="#FFFFFF" stroke="#000" stroke-width="2.5" rx="2"/>
+    <text x="295" y="55" font-family="sans-serif" font-weight="800" font-size="11" text-anchor="middle" fill="#000">2. NLP RESOLUTION</text>
+    <rect x="230" y="70" width="130" height="26" fill="#F4F0EA" stroke="#000" stroke-width="1.5"/>
+    <text x="295" y="87" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Descriptor Tokenizer</text>
+    <rect x="230" y="105" width="130" height="26" fill="#F4F0EA" stroke="#000" stroke-width="1.5"/>
+    <text x="295" y="122" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Cadence & Amount Det.</text>
+    <text x="295" y="152" font-family="sans-serif" font-size="7.5" fill="#333" text-anchor="middle">Hand-Assembled Dict.</text>
+
+    <!-- Arrow 2 -->
+    <line x1="375" y1="100" x2="410" y2="100" stroke="#000" stroke-width="3"/>
+
+    <!-- Stage 3: Neo4j Graph -->
+    <rect x="410" y="30" width="170" height="140" fill="#00E575" stroke="#000" stroke-width="2.5" rx="2"/>
+    <text x="495" y="55" font-family="sans-serif" font-weight="800" font-size="11" text-anchor="middle" fill="#000">3. NEO4J GRAPH ENGINE</text>
+    <rect x="425" y="70" width="140" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    <text x="495" y="87" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Chained Time-Series</text>
+    <rect x="425" y="105" width="140" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    <text x="495" y="122" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Entity & Alias Merge</text>
+    <text x="495" y="152" font-family="sans-serif" font-size="7.5" fill="#000" text-anchor="middle">Cypher Trap Detection</text>
+
+    <!-- Arrow 3 -->
+    <line x1="580" y1="100" x2="615" y2="100" stroke="#000" stroke-width="3"/>
+
+    <!-- Stage 4: UX & Presentation -->
+    <rect x="615" y="30" width="150" height="140" fill="#FF3366" stroke="#000" stroke-width="2.5" rx="2"/>
+    <text x="690" y="55" font-family="sans-serif" font-weight="800" font-size="11" text-anchor="middle" fill="#fff">4. PRESENTATION</text>
+    <rect x="625" y="70" width="130" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    <text x="690" y="87" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Annual Bleed Card</text>
+    <rect x="625" y="105" width="130" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    <text x="690" y="122" font-family="sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Cancellation Runbook</text>
+    <text x="690" y="152" font-family="sans-serif" font-size="7.5" fill="#fff" text-anchor="middle">Neo4j Bloom Visualizer</text>
+  </svg>
+</div>
+
+<!-- SECTION 2 -->
+<div class="page-break"></div>
+<h2>2. Hackathon Requirement Alignment Scorecard</h2>
+<p>The table below provides a rigorous 1:1 cross-reference proving how Finatic fulfills every directive of the prompt:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 28%;">Hackathon Problem Directive</th>
+      <th style="width: 32%;">Why the Industry Fails</th>
+      <th style="width: 40%;">Finatic Implementation & Graph Solution</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>1. Discovery of Recurring Commitments (even irregular in cadence/amount)</b></td>
+      <td>Banking apps search only for identical monthly amounts. Cloud bills (AWS/Google Cloud), quarterly insurance, or usage-based subscriptions go undetected.</td>
+      <td><b>Heuristic Mandate Clumping & Graph Traversal:</b> Discovers recurring edges linking the same account to the same entity regardless of variance, flagging irregular frequencies (weekly, bi-monthly, quarterly, variable usage).</td>
+    </tr>
+    <tr>
+      <td><b>2. Interpretation of Merchant Strings into Recognizable Brands</b></td>
+      <td>Bank statements show raw terminal strings formatted for mainframe clearinghouses (e.g., <code>BILLDESK*HOTSTAR*MUM</code>).</td>
+      <td><b>Graph Entity Resolution:</b> A curated reference taxonomy maps aliases, payment gateways, and clearing codes via <code>[:RESOLVES_TO]</code> into verified Brand Nodes (Netflix, Spotify, Amazon, Canva).</td>
+    </tr>
+    <tr>
+      <td><b>3. Detection of Silent Price Increases</b></td>
+      <td>Autopay mandates have an upper cap (e.g. ₹5,000). A price jump from ₹499 to ₹649 is completely silent and requires no OTP re-authorization.</td>
+      <td><b>Chained Event Cypher Detection:</b> Compares consecutive payments in the graph <code>(t1:DebitEvent)-[:NEXT_CHARGE]->(t2:DebitEvent)</code> where <code>t2.amount > t1.amount</code>, triggering instant percentage delta alerts.</td>
+    </tr>
+    <tr>
+      <td><b>4. Detection of Free Trials Converting to Paid Plans</b></td>
+      <td>Users sign up for a ₹2 or ₹0 token verification. 30 days later, full subscription charges hit when the user has forgotten the commitment.</td>
+      <td><b>Trial Trap Pattern Matcher:</b> Flags any sequence where an initial token auth (₹0–₹2) is followed 7 to 31 days later by a recurring charge &gt; ₹100, tagged with <code>⚠️ FREE TRIAL CONVERTED</code>.</td>
+    </tr>
+    <tr>
+      <td><b>5. Detection of Zombie & Dormant Charges</b></td>
+      <td>Subscriptions continue billing for months after the user stopped using the service, with zero daily interactions.</td>
+      <td><b>Engagement Gap Heuristic:</b> Flags subscriptions that have billed for 3+ consecutive billing cycles without any corresponding transactional or usage context.</td>
+    </tr>
+    <tr>
+      <td><b>6. Correct Cancellation Paths by Mechanism & Ghosting Protocols</b></td>
+      <td>Merchants build labyrinthine dark patterns. Users don't know whether to cancel in GPay, netbanking, or merchant settings.</td>
+      <td><b>Multi-Rail Decision DAG:</b> Models specific cancellation trees for UPI Autopay, Card SI, e-NACH, and App Stores, plus escalation protocols if the merchant refuses to cancel or ghost the user.</td>
+    </tr>
+    <tr>
+      <td><b>7. Annualized Total Bleed View</b></td>
+      <td>Monthly debits look deceptively small (₹199, ₹499, ₹899), minimizing urgency and driving inaction.</td>
+      <td><b>Psychological Anchor Metric:</b> Aggregates all detected commitments into an annualized bleed figure (e.g., <i>₹62,400/year</i>) prominently rendered in bold Neo-Brutalist typography.</td>
+    </tr>
+    <tr>
+      <td><b>8. Synthetic Data Only (Privacy Compliance)</b></td>
+      <td>Using real PII or live credentials violates hackathon rules and regulatory standards.</td>
+      <td><b>Synthetically Engineered Realistic Dataset:</b> Programmatically generated multi-account statement logs (HDFC, ICICI, SBI, UPI) with mathematically planted subscription edge cases.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- SECTION 3 -->
+<h2>3. The Graph Advantage: Why Neo4j & The Sponsor Award</h2>
+
+<div class="card card-highlight">
+  <div class="badge" style="background:#00E575; color:#000;">SPONSOR TRACK STRATEGY</div>
+  <h3 style="margin-top:4px;">Avoiding the "Graph Washing" Trap</h3>
+  <p>Most hackathon teams treat Neo4j as an ordinary SQL database by merely saving flat rows as standalone nodes. Judges easily reject these projects. Finatic wins because <b>the problem of auto-debits is fundamentally relational and topological</b>:</p>
+  <ul>
+    <li><b>Temporal Linked List:</b> Monthly charges form a chronological linked chain where calculating changes requires zero expensive self-joins.</li>
+    <li><b>Cross-Account Double Subscriptions:</b> Finding that you pay for Disney+ Hotstar on your credit card AND on UPI simultaneously is trivial in a graph where both paths converge on the same Merchant node.</li>
+    <li><b>Decision Trees as Directed Graphs:</b> Cancellation protocols are literally directed graphs of actions, prerequisites, and fallbacks.</li>
+  </ul>
+</div>
+
+<!-- DIAGRAM 2: GRAPH SCHEMA -->
+<div class="diagram-container">
+  <div class="diagram-title">
+    <span>Figure 2: Neo4j Labeled Property Graph Data Model</span>
+    <span style="color:#777;">Nodes, Directed Typed Edges, and Properties</span>
+  </div>
+  <svg viewBox="0 0 780 230" width="100%" height="230" xmlns="http://www.w3.org/2000/svg">
+    <!-- User Node -->
+    <circle cx="70" cy="115" r="35" fill="#FFE600" stroke="#000" stroke-width="2.5"/>
+    <text x="70" y="112" font-family="sans-serif" font-weight="800" font-size="9" text-anchor="middle">:User</text>
+    <text x="70" y="125" font-family="sans-serif" font-size="7.5" text-anchor="middle">id: "usr_01"</text>
+
+    <!-- Edge: User -> Account -->
+    <line x1="105" y1="115" x2="165" y2="115" stroke="#000" stroke-width="2"/>
+    <polygon points="165,115 155,110 155,120" fill="#000"/>
+    <text x="135" y="105" font-family="sans-serif" font-size="7.5" font-weight="700" text-anchor="middle">:OWNS</text>
+
+    <!-- Account Node -->
+    <circle cx="205" cy="115" r="38" fill="#FFF" stroke="#000" stroke-width="2.5"/>
+    <text x="205" y="110" font-family="sans-serif" font-weight="800" font-size="9" text-anchor="middle">:Account</text>
+    <text x="205" y="123" font-family="sans-serif" font-size="7" text-anchor="middle">last4: "1234"</text>
+    <text x="205" y="133" font-family="sans-serif" font-size="7" text-anchor="middle">bank: "HDFC"</text>
+
+    <!-- Edge: Account -> Mandate -->
+    <line x1="243" y1="115" x2="305" y2="115" stroke="#000" stroke-width="2"/>
+    <polygon points="305,115 295,110 295,120" fill="#000"/>
+    <text x="274" y="105" font-family="sans-serif" font-size="7.5" font-weight="700" text-anchor="middle">:HAS_MANDATE</text>
+
+    <!-- Mandate Node -->
+    <rect x="305" y="85" width="110" height="60" fill="#E6F4FE" stroke="#000" stroke-width="2.5" rx="3"/>
+    <text x="360" y="105" font-family="sans-serif" font-weight="800" font-size="8.5" text-anchor="middle">:Mandate</text>
+    <text x="360" y="118" font-family="sans-serif" font-size="7" text-anchor="middle">rail: "UPI_AUTOPAY"</text>
+    <text x="360" y="129" font-family="sans-serif" font-size="7" text-anchor="middle">umrn: "UMRN994821"</text>
+
+    <!-- Edge: Mandate -> DebitEvent 1 (Down) -->
+    <line x1="360" y1="145" x2="360" y2="175" stroke="#000" stroke-width="2"/>
+    <polygon points="360,175 355,165 365,165" fill="#000"/>
+    <text x="390" y="163" font-family="sans-serif" font-size="7.5" font-weight="700">:BILLED</text>
+
+    <!-- DebitEvent 1 -->
+    <rect x="315" y="175" width="90" height="42" fill="#FFF" stroke="#000" stroke-width="2" rx="2"/>
+    <text x="360" y="192" font-family="sans-serif" font-weight="800" font-size="7.5" text-anchor="middle">:DebitEvent (M1)</text>
+    <text x="360" y="204" font-family="sans-serif" font-size="7" text-anchor="middle">amt: ₹499 | date: Jun</text>
+
+    <!-- Edge: DebitEvent 1 -> DebitEvent 2 -->
+    <line x1="405" y1="196" x2="475" y2="196" stroke="#FF3366" stroke-width="2.5"/>
+    <polygon points="475,196 465,191 465,201" fill="#FF3366"/>
+    <text x="440" y="188" font-family="sans-serif" font-size="7" font-weight="800" fill="#FF3366" text-anchor="middle">:NEXT_CHARGE</text>
+
+    <!-- DebitEvent 2 -->
+    <rect x="475" y="175" width="95" height="42" fill="#FFE6E6" stroke="#FF3366" stroke-width="2" rx="2"/>
+    <text x="522" y="192" font-family="sans-serif" font-weight="800" font-size="7.5" text-anchor="middle">:DebitEvent (M2)</text>
+    <text x="522" y="204" font-family="sans-serif" font-size="7" font-weight="700" fill="#C00" text-anchor="middle">amt: ₹649 (+30%)</text>
+
+    <!-- Edge: Mandate -> Merchant (Right) -->
+    <line x1="415" y1="115" x2="480" y2="115" stroke="#000" stroke-width="2"/>
+    <polygon points="480,115 470,110 470,120" fill="#000"/>
+    <text x="447" y="105" font-family="sans-serif" font-size="7.5" font-weight="700" text-anchor="middle">:CHARGED_BY</text>
+
+    <!-- Merchant Node -->
+    <circle cx="522" cy="115" r="38" fill="#FFE600" stroke="#000" stroke-width="2.5"/>
+    <text x="522" y="112" font-family="sans-serif" font-weight="800" font-size="9" text-anchor="middle">:Merchant</text>
+    <text x="522" y="125" font-family="sans-serif" font-size="7.5" font-weight="700" text-anchor="middle">"Netflix"</text>
+
+    <!-- Raw Descriptor Node (Top) -->
+    <rect x="460" y="15" width="125" height="35" fill="#F4F0EA" stroke="#000" stroke-width="1.5" rx="2"/>
+    <text x="522" y="30" font-family="sans-serif" font-weight="800" font-size="7.5" text-anchor="middle">:RawDescriptor</text>
+    <text x="522" y="42" font-family="Courier, monospace" font-size="6.5" text-anchor="middle">"BILLDESK*NFLX_MUM"</text>
+
+    <!-- Edge: RawDescriptor -> Merchant -->
+    <line x1="522" y1="50" x2="522" y2="77" stroke="#000" stroke-width="2"/>
+    <polygon points="522,77 517,67 527,67" fill="#000"/>
+    <text x="555" y="66" font-family="sans-serif" font-size="7" font-weight="700">:RESOLVES_TO</text>
+
+    <!-- Edge: Mandate -> CancellationPath (Top Left) -->
+    <line x1="360" y1="85" x2="360" y2="55" stroke="#000" stroke-width="2"/>
+    <polygon points="360,55 355,65 365,65" fill="#000"/>
+    <text x="395" y="68" font-family="sans-serif" font-size="7" font-weight="700">:CANCELLED_VIA</text>
+
+    <!-- Cancellation Path Node -->
+    <rect x="300" y="15" width="120" height="40" fill="#00E575" stroke="#000" stroke-width="2" rx="2"/>
+    <text x="360" y="30" font-family="sans-serif" font-weight="800" font-size="7.5" text-anchor="middle">:CancellationPath</text>
+    <text x="360" y="42" font-family="sans-serif" font-size="7" text-anchor="middle">rail: "UPI_AUTOPAY"</text>
+
+    <!-- Steps -->
+    <line x1="300" y1="35" x2="250" y2="35" stroke="#000" stroke-width="1.5"/>
+    <polygon points="250,35 258,31 258,39" fill="#000"/>
+    <rect x="140" y="20" width="110" height="30" fill="#FFF" stroke="#000" stroke-width="1.5"/>
+    <text x="195" y="34" font-family="sans-serif" font-size="7" font-weight="700" text-anchor="middle">Step 1: Revoke in App</text>
+    <text x="195" y="44" font-family="sans-serif" font-size="6.5" fill="#555" text-anchor="middle">GPay/PhonePe > Mandates</text>
+  </svg>
+</div>
+
+<!-- SECTION 4 -->
+<div class="page-break"></div>
+<h2>4. Production Cypher Query Library for Trap Detection</h2>
+
+<p>These four native Cypher queries power the detection engine and serve as key exhibits during the sponsor evaluation:</p>
+
+<h3>Query 1: Silent Price Increase Detection</h3>
+<p>Detects consecutive debit events within an active mandate where the subsequent charge exceeds the prior charge without user notification:</p>
+<pre>MATCH (m:Mandate)-[:BILLED]->(t1:DebitEvent)-[:NEXT_CHARGE]->(t2:DebitEvent)
+MATCH (m)-[:CHARGED_BY]->(merch:Merchant)
+WHERE t2.amount > t1.amount
+RETURN merch.name AS Service,
+       m.rail AS PaymentRail,
+       t1.amount AS PreviousCharge,
+       t2.amount AS CurrentCharge,
+       (t2.amount - t1.amount) AS StealthHikeAmount,
+       round(((t2.amount - t1.amount) / t1.amount) * 100, 1) AS PercentageIncrease,
+       t2.date AS EffectiveDate</pre>
+
+<h3>Query 2: Free-Trial-to-Paid Ambush Detection</h3>
+<p>Identifies token authorizations (≤ ₹2) that quietly convert into high-dollar recurring charges within 32 days:</p>
+<pre>MATCH (m:Mandate)-[:BILLED]->(t0:DebitEvent)-[:NEXT_CHARGE]->(t1:DebitEvent)
+MATCH (m)-[:CHARGED_BY]->(merch:Merchant)
+WHERE t0.amount <= 2.0 
+  AND t1.amount >= 149.0
+  AND duration.inDays(date(t0.date), date(t1.date)).days <= 32
+RETURN merch.name AS Service,
+       t0.amount AS TrialAuthFee,
+       t1.amount AS ConvertedPlanCharge,
+       t1.date AS ConversionDate,
+       "CRITICAL_TRIAL_CONVERSION" AS ThreatLevel</pre>
+
+<h3>Query 3: Cross-Account Double Subscription Discovery</h3>
+<p>Detects cases where a single user is unwittingly paying for the same underlying service across two distinct accounts or rails:</p>
+<pre>MATCH (u:User)-[:OWNS]->(acc1:Account)-[:HAS_MANDATE]->(m1:Mandate)-[:CHARGED_BY]->(merch:Merchant)
+MATCH (u)-[:OWNS]->(acc2:Account)-[:HAS_MANDATE]->(m2:Mandate)-[:CHARGED_BY]->(merch)
+WHERE acc1 <> acc2 OR m1 <> m2
+RETURN merch.name AS DuplicateService,
+       collect(DISTINCT acc1.bank + " (.." + acc1.last4 + ")") AS PayingAccounts,
+       collect(DISTINCT m1.rail) AS RailsUsed,
+       sum(m1.monthlyEstimate) * 12 AS AnnualWastedCapital</pre>
+
+<h3>Query 4: Annualized Bleed Aggregation</h3>
+<p>Computes the total financial hemorrhage across all active and zombie mandates:</p>
+<pre>MATCH (u:User)-[:OWNS]->(:Account)-[:HAS_MANDATE]->(m:Mandate)
+WHERE m.status = 'ACTIVE' OR m.status = 'ZOMBIE'
+RETURN count(m) AS TotalActiveMandates,
+       sum(m.monthlyEstimate) AS MonthlyTotal,
+       sum(m.monthlyEstimate) * 12 AS AnnualBleedTotal</pre>
+
+<!-- SECTION 5 -->
+<h2>5. Synthetic Statement Dataset Specification</h2>
+
+<p class="lead">Per the prompt's strict instruction <i>"Synthetic statements and notifications only. Do not touch real financial data,"</i> we have designed an engineered multi-account persona dataset covering 12 months (January 2026 – December 2026).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 15%;">Service</th>
+      <th style="width: 25%;">Raw Descriptor String</th>
+      <th style="width: 15%;">Payment Rail</th>
+      <th style="width: 20%;">Planted Trap Scenario</th>
+      <th style="width: 25%;">Financial Impact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Netflix</b></td>
+      <td><code>BILLDESK*NFLX_MUM_AUTOPAY</code></td>
+      <td>UPI Autopay (GPay)</td>
+      <td><b>Silent Price Creep:</b> Billed ₹499/mo (Jan–Jul), quietly raised to ₹649/mo (Aug–Dec).</td>
+      <td>₹150/mo stealth hike (+30%). Annualized extra bleed: ₹1,800.</td>
+    </tr>
+    <tr>
+      <td><b>Canva Pro</b></td>
+      <td><code>CANVA*TRIAL*AUTH</code> ➔ <code>ACH*CANVA*SUB*BLR</code></td>
+      <td>Axis Card SI</td>
+      <td><b>Free Trial Trap:</b> ₹2 auth on March 3rd; converted to ₹899/mo from April 2nd ongoing.</td>
+      <td>₹8,091 drained for an app used once during trial week.</td>
+    </tr>
+    <tr>
+      <td><b>Disney+ Hotstar</b></td>
+      <td><code>SI-HDFC-HOTSTAR-MUM</code> &amp; <code>GOOGLE*DISNEYHOTSTAR</code></td>
+      <td>HDFC Card + Play Store</td>
+      <td><b>Double Subscription:</b> Billed ₹299/mo on HDFC Card and ₹299/mo via Google Play UPI.</td>
+      <td>Paying 2x for identical service. Annualized waste: ₹3,588.</td>
+    </tr>
+    <tr>
+      <td><b>Cult.fit Gym</b></td>
+      <td><code>NACH-DR-CULTFIT-BLR-09</code></td>
+      <td>e-NACH Mandate</td>
+      <td><b>Zombie Mandate:</b> ₹1,750/mo draining continuously; 0 visits logged in 7 months.</td>
+      <td>₹21,000/year bleed on dormant membership.</td>
+    </tr>
+    <tr>
+      <td><b>Spotify Premium</b></td>
+      <td><code>BILLDESK*SPOTIFY*IN</code></td>
+      <td>UPI Autopay</td>
+      <td><b>Normal Active Mandate:</b> Stable ₹119/mo throughout the year.</td>
+      <td>Legitimate active commitment: ₹1,428/year.</td>
+    </tr>
+    <tr>
+      <td><b>AWS Cloud</b></td>
+      <td><code>AMZN WEB SERVICES MUM</code></td>
+      <td>ICICI Credit Card</td>
+      <td><b>Irregular Cadence / Usage:</b> Variable charges between ₹310 and ₹740 every month.</td>
+      <td>Variable utility mandate. Annual total: ~₹5,800.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- SECTION 6 -->
+<div class="page-break"></div>
+<h2>6. Cancellation Runbooks & Merchant Ghosting Protocols</h2>
+
+<p class="lead">The hackathon prompt explicitly mandates providing <i>"the correct cancellation path for each mechanism, with the steps and what to do when the merchant does not respond."</i></p>
+
+<!-- DIAGRAM 4: CANCELLATION DECISION TREE -->
+<div class="diagram-container">
+  <div class="diagram-title">
+    <span>Figure 3: Multi-Rail Cancellation Decision Tree & Ghosting Protocol</span>
+    <span style="color:#777;">Interactive Killswitch Navigation</span>
+  </div>
+  <svg viewBox="0 0 780 180" width="100%" height="180" xmlns="http://www.w3.org/2000/svg">
+    <!-- Root Mandate -->
+    <rect x="15" y="65" width="120" height="50" fill="#FFE600" stroke="#000" stroke-width="2.5" rx="2"/>
+    <text x="75" y="87" font-family="sans-serif" font-weight="800" font-size="9" text-anchor="middle">COMMITMENT</text>
+    <text x="75" y="101" font-family="sans-serif" font-size="8" text-anchor="middle">DETECTED</text>
+
+    <!-- Branch 1: UPI Autopay -->
+    <line x1="135" y1="80" x2="200" y2="40" stroke="#000" stroke-width="2"/>
+    <polygon points="200,40 190,40 195,47" fill="#000"/>
+    <rect x="200" y="20" width="140" height="40" fill="#E6F4FE" stroke="#000" stroke-width="2" rx="2"/>
+    <text x="270" y="36" font-family="sans-serif" font-weight="800" font-size="8" text-anchor="middle">RAIL: UPI AUTOPAY</text>
+    <text x="270" y="49" font-family="sans-serif" font-size="7" text-anchor="middle">(GPay / PhonePe / Paytm)</text>
+
+    <!-- Branch 2: Card SI -->
+    <line x1="135" y1="90" x2="200" y2="90" stroke="#000" stroke-width="2"/>
+    <polygon points="200,90 190,85 190,95" fill="#000"/>
+    <rect x="200" y="70" width="140" height="40" fill="#FFF0F3" stroke="#000" stroke-width="2" rx="2"/>
+    <text x="270" y="86" font-family="sans-serif" font-weight="800" font-size="8" text-anchor="middle">RAIL: CARD SI (e-Mandate)</text>
+    <text x="270" y="99" font-family="sans-serif" font-size="7" text-anchor="middle">(RBI SIHub / Bank Portal)</text>
+
+    <!-- Branch 3: e-NACH -->
+    <line x1="135" y1="100" x2="200" y2="140" stroke="#000" stroke-width="2"/>
+    <polygon points="200,140 195,133 190,140" fill="#000"/>
+    <rect x="200" y="120" width="140" height="40" fill="#FFFDE6" stroke="#000" stroke-width="2" rx="2"/>
+    <text x="270" y="136" font-family="sans-serif" font-weight="800" font-size="8" text-anchor="middle">RAIL: e-NACH MANDATE</text>
+    <text x="270" y="149" font-family="sans-serif" font-size="7" text-anchor="middle">(Netbanking Clearinghouse)</text>
+
+    <!-- Standard Steps (Center) -->
+    <line x1="340" y1="40" x2="400" y2="40" stroke="#000" stroke-width="2"/>
+    <polygon points="400,40 390,35 390,45" fill="#000"/>
+    <rect x="400" y="20" width="165" height="40" fill="#FFF" stroke="#000" stroke-width="1.5"/>
+    <text x="482" y="35" font-family="sans-serif" font-weight="700" font-size="7.5" text-anchor="middle">Step 1: Open UPI App</text>
+    <text x="482" y="47" font-family="sans-serif" font-size="7" fill="#444" text-anchor="middle">Profile > Autopay > Tap Pause/Revoke</text>
+
+    <line x1="340" y1="90" x2="400" y2="90" stroke="#000" stroke-width="2"/>
+    <polygon points="400,90 390,85 390,95" fill="#000"/>
+    <rect x="400" y="70" width="165" height="40" fill="#FFF" stroke="#000" stroke-width="1.5"/>
+    <text x="482" y="85" font-family="sans-serif" font-weight="700" font-size="7.5" text-anchor="middle">Step 1: Login to Bank SIHub</text>
+    <text x="482" y="97" font-family="sans-serif" font-size="7" fill="#444" text-anchor="middle">Enter Card & OTP > Cancel Mandate</text>
+
+    <line x1="340" y1="140" x2="400" y2="140" stroke="#000" stroke-width="2"/>
+    <polygon points="400,140 390,135 390,145" fill="#000"/>
+    <rect x="400" y="120" width="165" height="40" fill="#FFF" stroke="#000" stroke-width="1.5"/>
+    <text x="482" y="135" font-family="sans-serif" font-weight="700" font-size="7.5" text-anchor="middle">Step 1: Bank Netbanking</text>
+    <text x="482" y="147" font-family="sans-serif" font-size="7" fill="#444" text-anchor="middle">Accounts > Enquire NACH > Stop Mandate</text>
+
+    <!-- Ghosting Fallback -->
+    <line x1="565" y1="90" x2="620" y2="90" stroke="#FF3366" stroke-width="2.5"/>
+    <polygon points="620,90 610,85 610,95" fill="#FF3366"/>
+    <rect x="620" y="45" width="145" height="90" fill="#000" stroke="#FF3366" stroke-width="2" rx="2"/>
+    <text x="692" y="65" font-family="sans-serif" font-weight="800" font-size="8" fill="#FF3366" text-anchor="middle">MERCHANT GHOSTING</text>
+    <text x="692" y="77" font-family="sans-serif" font-weight="800" font-size="8" fill="#FFF" text-anchor="middle">ESCALATION ENGINE</text>
+    <text x="692" y="95" font-family="sans-serif" font-size="7" fill="#FFE600" text-anchor="middle">1. UMRN Bank Dispute</text>
+    <text x="692" y="108" font-family="sans-serif" font-size="7" fill="#FFF" text-anchor="middle">2. NPCI / RBI Ombudsman</text>
+    <text x="692" y="121" font-family="sans-serif" font-size="7" fill="#00FF66" text-anchor="middle">3. Instant Virtual Card Kill</text>
+  </svg>
+</div>
+
+<div class="card card-highlight">
+  <h3>The 4 Tailored Rail Execution Runbooks</h3>
+  <ol>
+    <li><b>UPI Autopay Protocol (NPCI UMRN):</b> Every UPI Autopay generates a unique <i>Unique Mandate Reference Number (UMRN)</i>. Finatic extracts the UMRN directly from the SMS string. The app directs the user to open Google Pay / PhonePe $\rightarrow$ Profile $\rightarrow$ Autopay, locate the UMRN, and tap <b>"Revoke"</b>. Re-authentication via UPI PIN permanently terminates the mandate at the NPCI switch level regardless of what the merchant attempts.</li>
+    <li><b>Card Standing Instruction Protocol (RBI SIHub):</b> Under RBI circular DPSS.CO.PD.No.750/02.14.003/2019-20, all card e-mandates must be manageable on an independent consumer portal. Finatic generates direct links to the user's specific issuing bank SIHub portal (e.g. HDFC SIHub, ICICI Card e-Mandates) where the user authenticates with an OTP and revokes the instruction directly, cutting off the merchant's ability to bill the card.</li>
+    <li><b>e-NACH Netbanking Clearing Protocol:</b> For gym memberships or loan EMIs registered via Netbanking, Finatic provides specific menu navigation steps for the top 5 Indian banks (HDFC, SBI, ICICI, Axis, Kotak) to place a stop-payment request on the mandate ID directly with the clearing bank.</li>
+    <li><b>The Merchant Ghosting & Refusal Escalation:</b> If a merchant deletes the cancel button, does not respond to support tickets, or bills anyway:
+      <ul>
+        <li><i>Step 1:</i> Finatic generates a pre-formatted legal dispute letter quoting the UMRN / Mandate ID and Section 25 of the Payment and Settlement Systems Act.</li>
+        <li><i>Step 2:</i> Steps to trigger an unauthorized recurring charge dispute / chargeback with the issuing bank.</li>
+        <li><i>Step 3:</i> Escalation link to the Reserve Bank of India (RBI) CMS Portal (cms.rbi.org.in).</li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
+<!-- SECTION 7 -->
+<h2>7. Hackathon Judge Pitch Playbook (3-Minute Script)</h2>
+
+<div class="card">
+  <h3>Minute 1: The Hook & The Bleed (30–60 Seconds)</h3>
+  <p><i>"Judges, look at your bank statement. Right now, money is leaving your account every month for subscriptions you forgot you agreed to, under cryptic names like <code>ACH*BILLDESK*FIT*99</code>. Cancelling is deliberately impossible, and prices creep up silently without requiring your permission. Today, we built <b>Finatic Mandate Radar</b>: The Auto-Debit Assassin."</i></p>
+  <p><b>Visual Action:</b> Open Finatic on the Android phone. Show the stark Neo-Brutalist card at the top: <b>SILENT ANNUAL BLEED: ₹58,400 / YEAR</b> across 7 hidden mandates.</p>
+</div>
+
+<div class="card">
+  <h3>Minute 2: The Graph Revelation (60–120 Seconds)</h3>
+  <p><i>"Other tools treat financial data like an Excel spreadsheet. But recurring commitments are not rows in a table — they are an interconnected network of bank accounts, clearing strings, corporate brands, and payment rails. That’s why we built our intelligence engine on <b>Neo4j</b>."</i></p>
+  <p><b>Visual Action:</b> Switch to laptop screen showing <b>Neo4j Bloom</b>. Point to the glowing graph nodes:</p>
+  <ul>
+    <li>Show how 3 messy strings all resolve to <b>Netflix</b>.</li>
+    <li>Show the time-chained payment nodes: Month 1 (₹499) pointing to Month 2 (₹649) with Neo4j flagging the <b>Silent +30% Price Increase</b>.</li>
+    <li>Show the <b>Free Trial Trap</b>: Day 1 (₹2 auth) jumping to Day 30 (₹899 paid).</li>
+    <li>Show the <b>Double Subscription</b>: A user paying for Disney+ Hotstar twice across two different cards!</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>Minute 3: The 1-Click Killswitch (120–180 Seconds)</h3>
+  <p><i>"Finding the debit is only half the battle. Stopping it is where people give up. When you tap any subscription in Finatic, it loads the exact cancellation DAG for that rail — giving you the UMRN, the 3-step in-app cancel path, and the pre-written bank dispute notice if the merchant ghosts you. Finatic stops the bleed."</i></p>
+</div>
+
+<div class="cover-header" style="margin-top:24px; padding:16px;">
+  <h3 style="margin-bottom:4px;">Implementation Readiness Status</h3>
+  <p style="font-size:9pt; margin-bottom:0;">Everything specified in this document is architected for zero-delay rollout: synthetic dataset generation, Neo4j graph schema, Cypher query suite, and Neo-Brutalist mobile UI.</p>
+</div>
+
+</body>
+</html>
+`;
+
+const docsDir = path.join(__dirname, '..', 'docs');
+if (!fs.existsSync(docsDir)) {
+  fs.mkdirSync(docsDir, { recursive: true });
+}
+
+const htmlPath = path.join(docsDir, 'mandate_radar_specification.html');
+const pdfPath = path.join(__dirname, '..', 'FINATIC_MANDATE_RADAR_SPECIFICATION.pdf');
+
+fs.writeFileSync(htmlPath, htmlContent, 'utf8');
+console.log('HTML documentation written to: ' + htmlPath);
+
+// Locate Edge
+const edgePaths = [
+  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'
+];
+
+let edgeExe = null;
+for (const p of edgePaths) {
+  if (fs.existsSync(p)) {
+    edgeExe = p;
+    break;
+  }
+}
+
+if (!edgeExe) {
+  console.error('Microsoft Edge not found!');
+  process.exit(1);
+}
+
+console.log('Generating PDF via headless Microsoft Edge...');
+const cmd = `"${edgeExe}" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf="${pdfPath}" "${htmlPath}"`;
+
+try {
+  execSync(cmd, { stdio: 'inherit' });
+  const stats = fs.statSync(pdfPath);
+  console.log(`SUCCESS: PDF created at ${pdfPath} (${stats.size} bytes)`);
+} catch (err) {
+  console.error('PDF Generation failed:', err);
+  process.exit(1);
+}
