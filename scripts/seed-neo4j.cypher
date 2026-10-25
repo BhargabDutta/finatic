@@ -1,260 +1,126 @@
 // ============================================================
-// FINATIC // MANDATE KNOWLEDGE GRAPH SEED SCRIPT
-// Run this directly in Neo4j Browser or Cypher Shell
+// FINATIC // COMPLETE CONNECTED MANDATE GRAPH (SINGLE STATEMENT)
+// Copy-paste this entire block into Neo4j Workspace / Browser
 // ============================================================
 
-// 1. Clear existing mandate test nodes
 MATCH (n) DETACH DELETE n;
 
-// 2. Create User Node
-CREATE (u:User {id: "usr_finatic_01", name: "Bhargab Dutta", annualBleed: 62328});
+CREATE 
+  // 1. User & Accounts
+  (u:User {id: "usr_finatic_01", name: "Bhargab Dutta", annualBleed: 62328}),
+  (acc1:Account {id: "acc_hdfc", bank: "HDFC Bank", last4: "1234", type: "SALARY_ACCOUNT"}),
+  (acc2:Account {id: "acc_axis", bank: "Axis Bank", last4: "5678", type: "CREDIT_CARD"}),
+  (acc3:Account {id: "acc_icici", bank: "ICICI Bank", last4: "9012", type: "SAVINGS_ACCOUNT"}),
+  (u)-[:OWNS]->(acc1),
+  (u)-[:OWNS]->(acc2),
+  (u)-[:OWNS]->(acc3),
 
-// 3. Create Bank Accounts
-CREATE (acc1:Account {id: "acc_hdfc", bank: "HDFC Bank", last4: "1234", type: "SALARY_ACCOUNT"});
-CREATE (acc2:Account {id: "acc_axis", bank: "Axis Bank", last4: "5678", type: "CREDIT_CARD"});
-CREATE (acc3:Account {id: "acc_icici", bank: "ICICI Bank", last4: "9012", type: "SAVINGS_ACCOUNT"});
+  // 2. Merchants
+  (m_netflix:Merchant {name: "Netflix", category: "Entertainment / OTT"}),
+  (m_canva:Merchant {name: "Canva Pro", category: "Productivity & Design"}),
+  (m_hotstar:Merchant {name: "Disney+ Hotstar", category: "Entertainment / OTT"}),
+  (m_cultfit:Merchant {name: "Cult.fit", category: "Health & Fitness"}),
+  (m_spotify:Merchant {name: "Spotify Premium", category: "Audio Streaming"}),
+  (m_jio:Merchant {name: "Jio Fiber", category: "Utilities / Internet"}),
 
-CREATE (u)-[:OWNS]->(acc1);
-CREATE (u)-[:OWNS]->(acc2);
-CREATE (u)-[:OWNS]->(acc3);
+  // 3. Raw Descriptors
+  (d_nflx:RawDescriptor {raw: "BILLDESK*NFLX_MUM_AUTOPAY"}),
+  (d_canva:RawDescriptor {raw: "ACH*CANVA*SUB*BLR"}),
+  (d_hotstar1:RawDescriptor {raw: "SI-HDFC-HOTSTAR-MUM"}),
+  (d_hotstar2:RawDescriptor {raw: "GOOGLE*DISNEYHOTSTAR"}),
+  (d_cultfit:RawDescriptor {raw: "NACH-DR-CULTFIT-BLR-09"}),
+  (d_spotify:RawDescriptor {raw: "BILLDESK*SPOTIFY*IN"}),
+  (d_jio:RawDescriptor {raw: "JIO*FIBER*AUTOPAY"}),
 
-// --- Mandate: Netflix ---
-MERGE (merch_0:Merchant {name: "Netflix"})
-ON CREATE SET merch_0.category = "Entertainment / OTT";
+  (d_nflx)-[:RESOLVES_TO]->(m_netflix),
+  (d_canva)-[:RESOLVES_TO]->(m_canva),
+  (d_hotstar1)-[:RESOLVES_TO]->(m_hotstar),
+  (d_hotstar2)-[:RESOLVES_TO]->(m_hotstar),
+  (d_cultfit)-[:RESOLVES_TO]->(m_cultfit),
+  (d_spotify)-[:RESOLVES_TO]->(m_spotify),
+  (d_jio)-[:RESOLVES_TO]->(m_jio),
 
-CREATE (desc_0:RawDescriptor {raw: "BILLDESK*NFLX_MUM_AUTOPAY"});
-CREATE (desc_0)-[:RESOLVES_TO]->(merch_0);
+  // 4. Mandates
+  (man_nflx:Mandate {id: "man_nflx", rail: "UPI_AUTOPAY", umrn: "UMRN99482187", monthlyAmount: 649, annualAmount: 7788, threatType: "PRICE_CREEP", status: "FLAGGED"}),
+  (man_canva:Mandate {id: "man_canva", rail: "CARD_SI", umrn: "UMRN33829104", monthlyAmount: 899, annualAmount: 10788, threatType: "TRIAL_TRAP", status: "FLAGGED"}),
+  (man_hotstar1:Mandate {id: "man_hotstar1", rail: "CARD_SI", umrn: "UMRN44910283", monthlyAmount: 299, annualAmount: 3588, threatType: "DOUBLE_SUBSCRIPTION", status: "FLAGGED"}),
+  (man_hotstar2:Mandate {id: "man_hotstar2", rail: "APP_STORE", umrn: "UMRN55829104", monthlyAmount: 299, annualAmount: 3588, threatType: "DOUBLE_SUBSCRIPTION", status: "FLAGGED"}),
+  (man_cultfit:Mandate {id: "man_cultfit", rail: "NACH", umrn: "UMRN11928374", monthlyAmount: 1750, annualAmount: 21000, threatType: "ZOMBIE_CHARGE", status: "FLAGGED"}),
+  (man_spotify:Mandate {id: "man_spotify", rail: "UPI_AUTOPAY", umrn: "UMRN66718293", monthlyAmount: 119, annualAmount: 1428, threatType: "NONE", status: "ACTIVE"}),
+  (man_jio:Mandate {id: "man_jio", rail: "UPI_AUTOPAY", umrn: "UMRN88920194", monthlyAmount: 1179, annualAmount: 14148, threatType: "NONE", status: "ACTIVE"}),
 
-CREATE (mandate_0:Mandate {
-  id: "mandate_0",
-  rail: "UPI_AUTOPAY",
-  umrn: "UMRN99482187",
-  monthlyAmount: 649,
-  annualAmount: 7788,
-  threatType: "PRICE_CREEP",
-  status: "FLAGGED"
-});
+  (acc1)-[:HAS_MANDATE]->(man_nflx),
+  (acc2)-[:HAS_MANDATE]->(man_canva),
+  (acc1)-[:HAS_MANDATE]->(man_hotstar1),
+  (acc3)-[:HAS_MANDATE]->(man_hotstar2),
+  (acc1)-[:HAS_MANDATE]->(man_cultfit),
+  (acc3)-[:HAS_MANDATE]->(man_spotify),
+  (acc1)-[:HAS_MANDATE]->(man_jio),
 
-CREATE (acc1)-[:HAS_MANDATE]->(mandate_0);
-CREATE (mandate_0)-[:CHARGED_BY]->(merch_0);
+  (man_nflx)-[:CHARGED_BY]->(m_netflix),
+  (man_canva)-[:CHARGED_BY]->(m_canva),
+  (man_hotstar1)-[:CHARGED_BY]->(m_hotstar),
+  (man_hotstar2)-[:CHARGED_BY]->(m_hotstar),
+  (man_cultfit)-[:CHARGED_BY]->(m_cultfit),
+  (man_spotify)-[:CHARGED_BY]->(m_spotify),
+  (man_jio)-[:CHARGED_BY]->(m_jio),
 
-CREATE (cancel_0:CancellationPath {rail: "UPI_AUTOPAY"});
-CREATE (mandate_0)-[:CANCELLED_VIA]->(cancel_0);
+  // 5. Cancellation Paths
+  (c_upi:CancellationPath {rail: "UPI_AUTOPAY"}),
+  (c_card:CancellationPath {rail: "CARD_SI"}),
+  (c_nach:CancellationPath {rail: "NACH"}),
+  (c_app:CancellationPath {rail: "APP_STORE"}),
 
-CREATE (ev_0_0:DebitEvent {amount: 499, date: "2026-06-05"});
-CREATE (mandate_0)-[:BILLED]->(ev_0_0);
-CREATE (ev_0_1:DebitEvent {amount: 499, date: "2026-07-05"});
-CREATE (mandate_0)-[:BILLED]->(ev_0_1);
-CREATE (ev_0_0)-[:NEXT_CHARGE]->(ev_0_1);
-CREATE (ev_0_2:DebitEvent {amount: 649, date: "2026-08-05"});
-CREATE (mandate_0)-[:BILLED]->(ev_0_2);
-CREATE (ev_0_1)-[:NEXT_CHARGE]->(ev_0_2);
-CREATE (ev_0_3:DebitEvent {amount: 649, date: "2026-09-05"});
-CREATE (mandate_0)-[:BILLED]->(ev_0_3);
-CREATE (ev_0_2)-[:NEXT_CHARGE]->(ev_0_3);
+  (man_nflx)-[:CANCELLED_VIA]->(c_upi),
+  (man_canva)-[:CANCELLED_VIA]->(c_card),
+  (man_hotstar1)-[:CANCELLED_VIA]->(c_card),
+  (man_hotstar2)-[:CANCELLED_VIA]->(c_app),
+  (man_cultfit)-[:CANCELLED_VIA]->(c_nach),
+  (man_spotify)-[:CANCELLED_VIA]->(c_upi),
+  (man_jio)-[:CANCELLED_VIA]->(c_upi),
 
-// --- Mandate: Canva Pro ---
-MERGE (merch_1:Merchant {name: "Canva Pro"})
-ON CREATE SET merch_1.category = "Productivity & Design";
+  // 6. Chained Time-Series Events: Netflix (PRICE CREEP: 499 -> 499 -> 649 -> 649)
+  (ev_n0:DebitEvent {amount: 499, date: "2026-06-05"}),
+  (ev_n1:DebitEvent {amount: 499, date: "2026-07-05"}),
+  (ev_n2:DebitEvent {amount: 649, date: "2026-08-05"}),
+  (ev_n3:DebitEvent {amount: 649, date: "2026-09-05"}),
 
-CREATE (desc_1:RawDescriptor {raw: "ACH*CANVA*SUB*BLR"});
-CREATE (desc_1)-[:RESOLVES_TO]->(merch_1);
+  (man_nflx)-[:BILLED]->(ev_n0),
+  (man_nflx)-[:BILLED]->(ev_n1),
+  (man_nflx)-[:BILLED]->(ev_n2),
+  (man_nflx)-[:BILLED]->(ev_n3),
 
-CREATE (mandate_1:Mandate {
-  id: "mandate_1",
-  rail: "CARD_SI",
-  umrn: "UMRN33829104",
-  monthlyAmount: 899,
-  annualAmount: 10788,
-  threatType: "TRIAL_TRAP",
-  status: "FLAGGED"
-});
+  (ev_n0)-[:NEXT_CHARGE]->(ev_n1),
+  (ev_n1)-[:NEXT_CHARGE]->(ev_n2),
+  (ev_n2)-[:NEXT_CHARGE]->(ev_n3),
 
-CREATE (acc2)-[:HAS_MANDATE]->(mandate_1);
-CREATE (mandate_1)-[:CHARGED_BY]->(merch_1);
+  // 7. Chained Time-Series Events: Canva Pro (TRIAL TRAP: 2 -> 899 -> 899)
+  (ev_c0:DebitEvent {amount: 2, date: "2026-03-03"}),
+  (ev_c1:DebitEvent {amount: 899, date: "2026-04-02"}),
+  (ev_c2:DebitEvent {amount: 899, date: "2026-05-02"}),
 
-CREATE (cancel_1:CancellationPath {rail: "CARD_SI"});
-CREATE (mandate_1)-[:CANCELLED_VIA]->(cancel_1);
+  (man_canva)-[:BILLED]->(ev_c0),
+  (man_canva)-[:BILLED]->(ev_c1),
+  (man_canva)-[:BILLED]->(ev_c2),
 
-CREATE (ev_1_0:DebitEvent {amount: 2, date: "2026-03-03"});
-CREATE (mandate_1)-[:BILLED]->(ev_1_0);
-CREATE (ev_1_1:DebitEvent {amount: 899, date: "2026-04-02"});
-CREATE (mandate_1)-[:BILLED]->(ev_1_1);
-CREATE (ev_1_0)-[:NEXT_CHARGE]->(ev_1_1);
-CREATE (ev_1_2:DebitEvent {amount: 899, date: "2026-05-02"});
-CREATE (mandate_1)-[:BILLED]->(ev_1_2);
-CREATE (ev_1_1)-[:NEXT_CHARGE]->(ev_1_2);
+  (ev_c0)-[:NEXT_CHARGE]->(ev_c1),
+  (ev_c1)-[:NEXT_CHARGE]->(ev_c2),
 
-// --- Mandate: Disney+ Hotstar (Card) ---
-MERGE (merch_2:Merchant {name: "Disney+ Hotstar"})
-ON CREATE SET merch_2.category = "Entertainment / OTT";
+  // 8. Chained Time-Series Events: Cult.fit (ZOMBIE: 1750 every month)
+  (ev_cf1:DebitEvent {amount: 1750, date: "2026-06-18"}),
+  (ev_cf2:DebitEvent {amount: 1750, date: "2026-07-18"}),
+  (ev_cf3:DebitEvent {amount: 1750, date: "2026-08-18"}),
 
-CREATE (desc_2:RawDescriptor {raw: "SI-HDFC-HOTSTAR-MUM"});
-CREATE (desc_2)-[:RESOLVES_TO]->(merch_2);
+  (man_cultfit)-[:BILLED]->(ev_cf1),
+  (man_cultfit)-[:BILLED]->(ev_cf2),
+  (man_cultfit)-[:BILLED]->(ev_cf3),
 
-CREATE (mandate_2:Mandate {
-  id: "mandate_2",
-  rail: "CARD_SI",
-  umrn: "UMRN44910283",
-  monthlyAmount: 299,
-  annualAmount: 3588,
-  threatType: "DOUBLE_SUBSCRIPTION",
-  status: "FLAGGED"
-});
+  (ev_cf1)-[:NEXT_CHARGE]->(ev_cf2),
+  (ev_cf2)-[:NEXT_CHARGE]->(ev_cf3),
 
-CREATE (acc1)-[:HAS_MANDATE]->(mandate_2);
-CREATE (mandate_2)-[:CHARGED_BY]->(merch_2);
+  // 9. Regular Events
+  (ev_sp1:DebitEvent {amount: 119, date: "2026-08-21"}),
+  (man_spotify)-[:BILLED]->(ev_sp1),
 
-CREATE (cancel_2:CancellationPath {rail: "CARD_SI"});
-CREATE (mandate_2)-[:CANCELLED_VIA]->(cancel_2);
-
-CREATE (ev_2_0:DebitEvent {amount: 299, date: "2026-07-10"});
-CREATE (mandate_2)-[:BILLED]->(ev_2_0);
-CREATE (ev_2_1:DebitEvent {amount: 299, date: "2026-08-10"});
-CREATE (mandate_2)-[:BILLED]->(ev_2_1);
-CREATE (ev_2_0)-[:NEXT_CHARGE]->(ev_2_1);
-
-// --- Mandate: Disney+ Hotstar (Google Play) ---
-MERGE (merch_3:Merchant {name: "Disney+ Hotstar"})
-ON CREATE SET merch_3.category = "Entertainment / OTT";
-
-CREATE (desc_3:RawDescriptor {raw: "GOOGLE*DISNEYHOTSTAR"});
-CREATE (desc_3)-[:RESOLVES_TO]->(merch_3);
-
-CREATE (mandate_3:Mandate {
-  id: "mandate_3",
-  rail: "APP_STORE",
-  umrn: "UMRN55829104",
-  monthlyAmount: 299,
-  annualAmount: 3588,
-  threatType: "DOUBLE_SUBSCRIPTION",
-  status: "FLAGGED"
-});
-
-CREATE (acc3)-[:HAS_MANDATE]->(mandate_3);
-CREATE (mandate_3)-[:CHARGED_BY]->(merch_3);
-
-CREATE (cancel_3:CancellationPath {rail: "APP_STORE"});
-CREATE (mandate_3)-[:CANCELLED_VIA]->(cancel_3);
-
-CREATE (ev_3_0:DebitEvent {amount: 299, date: "2026-07-14"});
-CREATE (mandate_3)-[:BILLED]->(ev_3_0);
-CREATE (ev_3_1:DebitEvent {amount: 299, date: "2026-08-14"});
-CREATE (mandate_3)-[:BILLED]->(ev_3_1);
-CREATE (ev_3_0)-[:NEXT_CHARGE]->(ev_3_1);
-
-// --- Mandate: Cult.fit Fitness ---
-MERGE (merch_4:Merchant {name: "Cult.fit Fitness"})
-ON CREATE SET merch_4.category = "Health & Fitness";
-
-CREATE (desc_4:RawDescriptor {raw: "NACH-DR-CULTFIT-BLR-09"});
-CREATE (desc_4)-[:RESOLVES_TO]->(merch_4);
-
-CREATE (mandate_4:Mandate {
-  id: "mandate_4",
-  rail: "NACH",
-  umrn: "UMRN11928374",
-  monthlyAmount: 1750,
-  annualAmount: 21000,
-  threatType: "ZOMBIE_CHARGE",
-  status: "FLAGGED"
-});
-
-CREATE (acc1)-[:HAS_MANDATE]->(mandate_4);
-CREATE (mandate_4)-[:CHARGED_BY]->(merch_4);
-
-CREATE (cancel_4:CancellationPath {rail: "NACH"});
-CREATE (mandate_4)-[:CANCELLED_VIA]->(cancel_4);
-
-CREATE (ev_4_0:DebitEvent {amount: 1750, date: "2026-06-18"});
-CREATE (mandate_4)-[:BILLED]->(ev_4_0);
-CREATE (ev_4_1:DebitEvent {amount: 1750, date: "2026-07-18"});
-CREATE (mandate_4)-[:BILLED]->(ev_4_1);
-CREATE (ev_4_0)-[:NEXT_CHARGE]->(ev_4_1);
-CREATE (ev_4_2:DebitEvent {amount: 1750, date: "2026-08-18"});
-CREATE (mandate_4)-[:BILLED]->(ev_4_2);
-CREATE (ev_4_1)-[:NEXT_CHARGE]->(ev_4_2);
-
-// --- Mandate: Spotify Premium ---
-MERGE (merch_5:Merchant {name: "Spotify Premium"})
-ON CREATE SET merch_5.category = "Audio Streaming";
-
-CREATE (desc_5:RawDescriptor {raw: "BILLDESK*SPOTIFY*IN"});
-CREATE (desc_5)-[:RESOLVES_TO]->(merch_5);
-
-CREATE (mandate_5:Mandate {
-  id: "mandate_5",
-  rail: "UPI_AUTOPAY",
-  umrn: "UMRN66718293",
-  monthlyAmount: 119,
-  annualAmount: 1428,
-  threatType: "NONE",
-  status: "ACTIVE"
-});
-
-CREATE (acc3)-[:HAS_MANDATE]->(mandate_5);
-CREATE (mandate_5)-[:CHARGED_BY]->(merch_5);
-
-CREATE (cancel_5:CancellationPath {rail: "UPI_AUTOPAY"});
-CREATE (mandate_5)-[:CANCELLED_VIA]->(cancel_5);
-
-CREATE (ev_5_0:DebitEvent {amount: 119, date: "2026-07-21"});
-CREATE (mandate_5)-[:BILLED]->(ev_5_0);
-CREATE (ev_5_1:DebitEvent {amount: 119, date: "2026-08-21"});
-CREATE (mandate_5)-[:BILLED]->(ev_5_1);
-CREATE (ev_5_0)-[:NEXT_CHARGE]->(ev_5_1);
-
-// --- Mandate: Jio Fiber Broadband ---
-MERGE (merch_6:Merchant {name: "Jio Fiber Broadband"})
-ON CREATE SET merch_6.category = "Utilities / Internet";
-
-CREATE (desc_6:RawDescriptor {raw: "JIO*FIBER*AUTOPAY"});
-CREATE (desc_6)-[:RESOLVES_TO]->(merch_6);
-
-CREATE (mandate_6:Mandate {
-  id: "mandate_6",
-  rail: "UPI_AUTOPAY",
-  umrn: "UMRN88920194",
-  monthlyAmount: 1179,
-  annualAmount: 14148,
-  threatType: "NONE",
-  status: "ACTIVE"
-});
-
-CREATE (acc1)-[:HAS_MANDATE]->(mandate_6);
-CREATE (mandate_6)-[:CHARGED_BY]->(merch_6);
-
-CREATE (cancel_6:CancellationPath {rail: "UPI_AUTOPAY"});
-CREATE (mandate_6)-[:CANCELLED_VIA]->(cancel_6);
-
-CREATE (ev_6_0:DebitEvent {amount: 1179, date: "2026-07-24"});
-CREATE (mandate_6)-[:BILLED]->(ev_6_0);
-CREATE (ev_6_1:DebitEvent {amount: 1179, date: "2026-08-24"});
-CREATE (mandate_6)-[:BILLED]->(ev_6_1);
-CREATE (ev_6_0)-[:NEXT_CHARGE]->(ev_6_1);
-
-// ============================================================
-// 4. VERIFICATION QUERIES (RUN IN NEO4J BROWSER)
-// ============================================================
-
-// Query 1: Detect Silent Price Increases
-MATCH (m:Mandate)-[:BILLED]->(t1:DebitEvent)-[:NEXT_CHARGE]->(t2:DebitEvent)
-MATCH (m)-[:CHARGED_BY]->(merch:Merchant)
-WHERE t2.amount > t1.amount
-RETURN merch.name AS Service, t1.amount AS OldPrice, t2.amount AS NewPrice, (t2.amount - t1.amount) AS StealthHike;
-
-// Query 2: Detect Free Trial Traps (Auth <= 2 followed by full plan >= 150)
-MATCH (m:Mandate)-[:BILLED]->(t0:DebitEvent)-[:NEXT_CHARGE]->(t1:DebitEvent)
-MATCH (m)-[:CHARGED_BY]->(merch:Merchant)
-WHERE t0.amount <= 2.0 AND t1.amount >= 150.0
-RETURN merch.name AS Service, t0.amount AS AuthFee, t1.amount AS FullCharge, "TRIAL_AMBUSH" AS Threat;
-
-// Query 3: Detect Double Subscriptions across accounts
-MATCH (u:User)-[:OWNS]->(a:Account)-[:HAS_MANDATE]->(m:Mandate)-[:CHARGED_BY]->(merch:Merchant)
-WITH merch, count(m) AS MandatesCount, collect(a.bank + ' (..' + a.last4 + ')') AS Accounts
-WHERE MandatesCount > 1
-RETURN merch.name AS DuplicateService, MandatesCount, Accounts;
-
-// Query 4: Total Annual Bleed
-MATCH (u:User)-[:OWNS]->(:Account)-[:HAS_MANDATE]->(m:Mandate)
-RETURN count(m) AS TotalMandates, sum(m.monthlyAmount) AS MonthlyBleed, sum(m.annualAmount) AS AnnualBleedTotal;
+  (ev_jio1:DebitEvent {amount: 1179, date: "2026-08-24"}),
+  (man_jio)-[:BILLED]->(ev_jio1);
