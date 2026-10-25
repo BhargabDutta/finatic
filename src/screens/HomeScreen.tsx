@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { COLORS } from '../theme/colors';
 import { BRUTALIST } from '../theme/styles';
@@ -41,8 +42,10 @@ import { SMSFilterBar } from '../components/sms/SMSFilterBar';
 import { SMSCard } from '../components/sms/SMSCard';
 import { SMSDetailModal } from '../components/sms/SMSDetailModal';
 import { TestSMSModal } from '../components/devtools/TestSMSModal';
+import { MandateRadarView } from '../components/mandate/MandateRadarView';
 
 export const HomeScreen: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'MANDATE_RADAR' | 'SMS_FEED'>('MANDATE_RADAR');
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [stats, setStats] = useState<ScanStats | null>(null);
   const [secondsRemaining, setSecondsRemaining] = useState<number>(SCAN_INTERVAL_SECONDS);
@@ -222,87 +225,120 @@ export const HomeScreen: React.FC = () => {
 
       {/* Industrial Ticker Tape */}
       <BrutalistTicker
-        statusText={`FINATIC RADAR // 3-MIN SCAN ACTIVE // ${messages.length} SMS ANALYZED // TOTAL DEBIT: ₹${(stats?.debitTotal || 0).toLocaleString()} // TOTAL CREDIT: ₹${(stats?.creditTotal || 0).toLocaleString()}`}
+        statusText={
+          activeTab === 'MANDATE_RADAR'
+            ? 'MANDATE RADAR // AUTODEBIT ASSASSIN // NEO4J KNOWLEDGE GRAPH // SILENT BLEED: ₹62,328/YR // 4 CRITICAL THREATS DETECTED'
+            : `FINATIC RADAR // 3-MIN SCAN ACTIVE // ${messages.length} SMS ANALYZED // TOTAL DEBIT: ₹${(stats?.debitTotal || 0).toLocaleString()} // TOTAL CREDIT: ₹${(stats?.creditTotal || 0).toLocaleString()}`
+        }
       />
+
+      {/* Primary Tab Navigation Switcher */}
+      <View style={styles.tabSwitcher}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'MANDATE_RADAR' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('MANDATE_RADAR')}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.tabButtonText, activeTab === 'MANDATE_RADAR' && styles.tabButtonTextActive]}>
+            🎯 AUTO-DEBIT ASSASSIN
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'SMS_FEED' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('SMS_FEED')}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.tabButtonText, activeTab === 'SMS_FEED' && styles.tabButtonTextActive]}>
+            ⚡ SMS INBOX RADAR
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. 3-Minute Scanner Status Card */}
-        <ScanStatusCard
-          secondsLeft={secondsRemaining}
-          totalInterval={SCAN_INTERVAL_SECONDS}
-          isScanning={isScanning}
-          lastScanTime={lastScanTime}
-          totalCount={messages.length}
-          onForceScan={() => executeScan(false)}
-          isNativeAndroid={isNativeAndroid}
-          hasPermission={hasPermission}
-          onRequestPermission={handleRequestPermission}
-        />
-
-        {/* 2. Urgent Financial Alerts (Upcoming Bills, High Debits) */}
-        <UrgentAlertsCard messages={messages} onSelectMessage={handleOpenDetail} />
-
-        {/* 3. Financial Net Flow & Inflow/Outflow Cards */}
-        {stats && (
-          <FinancialSummaryCard
-            totalDebit={stats.debitTotal}
-            totalCredit={stats.creditTotal}
-            totalBillDue={stats.billDueTotal}
-            financialCount={stats.financialCount}
-          />
-        )}
-
-        {/* 4. Categorized Spending Breakdown Bar Chart */}
-        {stats && (
-          <CategoryBreakdownChart
-            categoryTotals={stats.categoryTotals}
-            totalDebit={stats.debitTotal}
-          />
-        )}
-
-        {/* 5. SMS Type Distribution (Debits vs Credits vs Bills vs OTPs vs Spam) */}
-        {stats && (
-          <MessageTypeDistribution
-            distribution={stats.typeDistribution}
-            totalCount={messages.length}
-          />
-        )}
-
-        {/* 6. Section Divider & Feed Header */}
-        <View style={styles.feedHeaderRow}>
-          <View style={styles.feedTitleWrap}>
-            <Text style={styles.feedTitle}>TRANSACTION & SMS FEED</Text>
-            <Text style={styles.feedSubtitle}>
-              SHOWING {filteredMessages.length} OF {messages.length}
-            </Text>
-          </View>
-        </View>
-
-        {/* 7. Search & Filter Bar */}
-        <SMSFilterBar
-          selectedFilter={selectedFilter}
-          onSelectFilter={setSelectedFilter}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          counts={filterCounts}
-        />
-
-        {/* 8. Messages List */}
-        {filteredMessages.length > 0 ? (
-          filteredMessages.map((msg) => (
-            <SMSCard key={msg.id} message={msg} onPress={handleOpenDetail} />
-          ))
+        {activeTab === 'MANDATE_RADAR' ? (
+          <MandateRadarView />
         ) : (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>NO MESSAGES FOUND</Text>
-            <Text style={styles.emptyDesc}>
-              No SMS messages match your current filter or search criteria.
-            </Text>
-          </View>
+          <>
+            {/* 1. 3-Minute Scanner Status Card */}
+            <ScanStatusCard
+              secondsLeft={secondsRemaining}
+              totalInterval={SCAN_INTERVAL_SECONDS}
+              isScanning={isScanning}
+              lastScanTime={lastScanTime}
+              totalCount={messages.length}
+              onForceScan={() => executeScan(false)}
+              isNativeAndroid={isNativeAndroid}
+              hasPermission={hasPermission}
+              onRequestPermission={handleRequestPermission}
+            />
+
+            {/* 2. Urgent Financial Alerts (Upcoming Bills, High Debits) */}
+            <UrgentAlertsCard messages={messages} onSelectMessage={handleOpenDetail} />
+
+            {/* 3. Financial Net Flow & Inflow/Outflow Cards */}
+            {stats && (
+              <FinancialSummaryCard
+                totalDebit={stats.debitTotal}
+                totalCredit={stats.creditTotal}
+                totalBillDue={stats.billDueTotal}
+                financialCount={stats.financialCount}
+              />
+            )}
+
+            {/* 4. Categorized Spending Breakdown Bar Chart */}
+            {stats && (
+              <CategoryBreakdownChart
+                categoryTotals={stats.categoryTotals}
+                totalDebit={stats.debitTotal}
+              />
+            )}
+
+            {/* 5. SMS Type Distribution (Debits vs Credits vs Bills vs OTPs vs Spam) */}
+            {stats && (
+              <MessageTypeDistribution
+                distribution={stats.typeDistribution}
+                totalCount={messages.length}
+              />
+            )}
+
+            {/* 6. Section Divider & Feed Header */}
+            <View style={styles.feedHeaderRow}>
+              <View style={styles.feedTitleWrap}>
+                <Text style={styles.feedTitle}>TRANSACTION & SMS FEED</Text>
+                <Text style={styles.feedSubtitle}>
+                  SHOWING {filteredMessages.length} OF {messages.length}
+                </Text>
+              </View>
+            </View>
+
+            {/* 7. Search & Filter Bar */}
+            <SMSFilterBar
+              selectedFilter={selectedFilter}
+              onSelectFilter={setSelectedFilter}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              counts={filterCounts}
+            />
+
+            {/* 8. Messages List */}
+            {filteredMessages.length > 0 ? (
+              filteredMessages.map((msg) => (
+                <SMSCard key={msg.id} message={msg} onPress={handleOpenDetail} />
+              ))
+            ) : (
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyTitle}>NO MESSAGES FOUND</Text>
+                <Text style={styles.emptyDesc}>
+                  No SMS messages match your current filter or search criteria.
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
 
@@ -328,6 +364,37 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.paper,
+  },
+  tabSwitcher: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.paper,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 4,
+    gap: 8,
+  },
+  tabButton: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: COLORS.ink,
+    paddingVertical: 10,
+    alignItems: 'center',
+    ...BRUTALIST.shadowSm,
+  },
+  tabButtonActive: {
+    backgroundColor: COLORS.yellow,
+    borderColor: COLORS.ink,
+  },
+  tabButtonText: {
+    fontFamily: BRUTALIST.fontMono,
+    fontSize: 10.5,
+    fontWeight: '900',
+    color: COLORS.ink,
+    letterSpacing: 0.5,
+  },
+  tabButtonTextActive: {
+    color: COLORS.ink,
   },
   scrollView: {
     flex: 1,
