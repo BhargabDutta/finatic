@@ -16,6 +16,7 @@ import { generateCypherSeedScript } from '../../services/neo4jSync';
 import { AnnualBleedCard } from './AnnualBleedCard';
 import { MandateCard } from './MandateCard';
 import { CancellationModal } from './CancellationModal';
+import { CypherModal } from './CypherModal';
 
 type FilterType = 'ALL' | 'THREATS' | 'PRICE_CREEP' | 'TRIAL_TRAP' | 'DOUBLE_SUBSCRIPTION' | 'ZOMBIE_CHARGE';
 
@@ -27,6 +28,7 @@ export const MandateRadarView: React.FC = () => {
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
   const [activeMandateForCancel, setActiveMandateForCancel] = useState<Mandate | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false);
+  const [isCypherModalOpen, setIsCypherModalOpen] = useState<boolean>(false);
 
   // Run initial synthetic statement audit
   const runAudit = useCallback(() => {
@@ -194,7 +196,7 @@ export const MandateRadarView: React.FC = () => {
         <Text style={styles.neo4jDesc}>
           Modeled as Chained Time-Series events and Entity-Alias resolution to detect silent price creep and cross-account duplicates.
         </Text>
-        <TouchableOpacity style={styles.neo4jButton} onPress={showNeo4jScriptInfo}>
+        <TouchableOpacity style={styles.neo4jButton} onPress={() => setIsCypherModalOpen(true)}>
           <Text style={styles.neo4jButtonText}>🕸️ VIEW GRAPH CYPHER SPECIFICATION</Text>
         </TouchableOpacity>
       </View>
@@ -204,6 +206,12 @@ export const MandateRadarView: React.FC = () => {
         visible={isCancelModalOpen}
         mandate={activeMandateForCancel}
         onClose={() => setIsCancelModalOpen(false)}
+      />
+
+      {/* Neo4j Cypher Inspector Modal */}
+      <CypherModal
+        visible={isCypherModalOpen}
+        onClose={() => setIsCypherModalOpen(false)}
       />
     </View>
   );
