@@ -7,8 +7,9 @@ import {
   CancellationStep,
   GhostingNotice 
 } from '../types/mandate';
-import { resolveMerchantEntity, cleanDescriptorString } from './merchantTaxonomy';
+import { resolveMerchantEntity } from './merchantTaxonomy';
 import { SyntheticStatementRecord, generate12MonthSyntheticStatement } from './syntheticStatementGenerator';
+import { SMSMessage } from '../types/sms';
 
 /**
  * Builds cancellation runbooks based on payment rail
@@ -325,4 +326,129 @@ export function auditSyntheticStatement(): {
 } {
   const records = generate12MonthSyntheticStatement();
   return analyzeStatementForMandates(records);
+}
+
+/**
+ * Extracts structured auto-pay Mandates directly from real or simulated SMS messages
+ */
+export function extractMandatesFromSMS(messages: SMSMessage[]): Mandate[] {
+  const autoPayMessages = messages.filter(
+    (m) => m.parsed && m.parsed.isAutoPayment && (m.parsed.amount || 0) > 0
+  );
+  if (autoPayMessages.length === 0) return [];
+
+  const grouped = new Map<string, SMSMessage[]>();
+  autoPayMessages.forEach((msg) => {
+    const p = msg.parsed;
+    const merch = p.merchant || 'Subscription';
+    const acc = `${p.bankOrSender || 'Bank'} •• ${p.accountDigits || 'XXXX'}`;
+    const key = `${merch}_${acc}`.toLowerCase();
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push(msg);
+  });
+
+  const mandates: Mandate[] = [];
+  grouped.forEach((msgs) => {
+    msgs.sort((a, b) => a.date - b.date);
+    const latest = msgs[msgs.length - 1];
+    const first = msgs[0];
+    const p = latest.parsed;
+    const amount = p.amount || 0;
+    const firstAmount = first.parsed.amount || amount;
+    const hasPriceHike = msgs.length > 1 && amount > firstAmount;
+
+    const merchName = p.merchant || 'Subscription';
+    const rail: PaymentRail =
+      p.type === 'UPI_AUTOPAY'
+        ? 'UPI_AUTOPAY'
+        : p.type === 'CARD_SI'
+        ? 'CARD_SI'
+        : p.type === 'NACH_ECS'
+        ? 'NACH'
+        : 'UPI_AUTOPAY';
+
+    const account = `${p.bankOrSender || 'Bank'} •• ${p.accountDigits || 'XXXX'}`;
+    const runbook = getCancellationRunbook(rail, merchName, p.mandateReference || undefined, account);
+
+    const chargeHistory: DebitEvent[] = msgs.map((m, idx) => ({
+      id: `${m.id}_ev_${idx}`,
+      date: new Date(m.date).toISOString().split('T')[0],
+      amount: m.parsed.amount || 0,
+      rawDescriptor: m.body,
+      account,
+    }));
+
+    mandates.push({
+      id: `sms_man_${latest.id}`,
+      merchantName: merchName,
+      category: p.category || 'General',
+      rawDescriptor: latest.body,
+      aliases: [merchName],
+      paymentRail: rail,
+      account,
+      umrn: p.mandateReference || undefined,
+      frequency: 'MONTHLY',
+      currentAmount: amount,
+      previousAmount: hasPriceHike ? firstAmount : undefined,
+      priceIncreaseAmount: hasPriceHike ? amount - firstAmount : undefined,
+      priceIncreasePercent: hasPriceHike ? Math.round(((amount - firstAmount) / firstAmount) * 100) : undefined,
+      monthlyEstimate: amount,
+      annualEstimate: amount * 12,
+      firstSeenDate: new Date(first.date).toISOString().split('T')[0],
+      lastChargedDate: new Date(latest.date).toISOString().split('T')[0],
+      threatType: hasPriceHike ? 'PRICE_CREEP' : 'NONE',
+      threatDescription: hasPriceHike ? `Increased from ₹${firstAmount} to ₹${amount}` : undefined,
+      status: 'ACTIVE',
+      cancellationSteps: runbook.steps,
+      ghostingNotice: runbook.ghosting,
+      chargeHistory,
+    });
+  });
+
+  return mandates;
+}
+
+/**
+ * Merges baseline knowledge graph with live SMS-detected autopay mandates
+ */
+export function auditCombinedMandates(messages?: SMSMessage[]): {
+  mandates: Mandate[];
+  stats: MandateRadarStats;
+} {
+  const { mandates: baseMandates } = auditSyntheticStatement();
+  if (!messages || messages.length === 0) {
+    return auditSyntheticStatement();
+  }
+
+  const realMandates = extractMandatesFromSMS(messages);
+  if (realMandates.length === 0) {
+    return auditSyntheticStatement();
+  }
+
+  const mandateMap = new Map<string, Mandate>();
+  baseMandates.forEach((m) => mandateMap.set(m.merchantName.toLowerCase(), m));
+  realMandates.forEach((m) => mandateMap.set(m.merchantName.toLowerCase(), m));
+
+  const mergedMandates = Array.from(mandateMap.values());
+  const totalAnnualBleed = mergedMandates.reduce((sum, m) => sum + m.annualEstimate, 0);
+  const totalMonthlyBleed = mergedMandates.reduce((sum, m) => sum + m.monthlyEstimate, 0);
+  const threatsCount = mergedMandates.filter((m) => m.threatType !== 'NONE').length;
+  const priceCreepsCount = mergedMandates.filter((m) => m.threatType === 'PRICE_CREEP').length;
+  const trialTrapsCount = mergedMandates.filter((m) => m.threatType === 'TRIAL_TRAP').length;
+  const doubleSubscriptionsCount = mergedMandates.filter((m) => m.threatType === 'DOUBLE_SUBSCRIPTION').length;
+  const zombieChargesCount = mergedMandates.filter((m) => m.threatType === 'ZOMBIE_CHARGE').length;
+
+  const stats: MandateRadarStats = {
+    totalMandates: mergedMandates.length,
+    totalAnnualBleed,
+    totalMonthlyBleed,
+    threatsCount,
+    priceCreepsCount,
+    trialTrapsCount,
+    doubleSubscriptionsCount,
+    zombieChargesCount,
+    lastAuditedTimestamp: Date.now(),
+  };
+
+  return { mandates: mergedMandates, stats };
 }

@@ -294,6 +294,7 @@ export const HomeScreen: React.FC = () => {
         >
           {activeTab === 'MANDATE_RADAR' ? (
             <MandateRadarView
+              realMessages={messages}
               onAskAI={(prompt) => {
                 setChatInitialPrompt(prompt);
                 setActiveTab('AI_CHATBOT');

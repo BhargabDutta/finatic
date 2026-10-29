@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,10 @@ import {
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { Mandate, MandateRadarStats } from '../../types/mandate';
-import { auditSyntheticStatement } from '../../services/mandateGraphEngine';
+import { auditCombinedMandates } from '../../services/mandateGraphEngine';
 import { AuraSyncResult } from '../../services/neo4jSync';
 import { buildMandateAuditPrompt } from '../../services/chatbotService';
+import { SMSMessage } from '../../types/sms';
 import { AnnualBleedCard } from './AnnualBleedCard';
 import { MandateCard } from './MandateCard';
 import { CancellationModal } from './CancellationModal';
@@ -22,13 +23,13 @@ import { Neo4jAuraSyncModal } from './Neo4jAuraSyncModal';
 type FilterType = 'ALL' | 'THREATS' | 'PRICE_CREEP' | 'TRIAL_TRAP' | 'DOUBLE_SUBSCRIPTION' | 'ZOMBIE_CHARGE';
 
 interface MandateRadarViewProps {
+  realMessages?: SMSMessage[];
   onAskAI?: (prompt: string) => void;
 }
 
-export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) => {
-  const [initialAudit] = useState(() => auditSyntheticStatement());
-  const [mandates, setMandates] = useState<Mandate[]>(initialAudit.mandates);
-  const [stats, setStats] = useState<MandateRadarStats | null>(initialAudit.stats);
+export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages, onAskAI }) => {
+  const [mandates, setMandates] = useState<Mandate[]>(() => auditCombinedMandates(realMessages).mandates);
+  const [stats, setStats] = useState<MandateRadarStats | null>(() => auditCombinedMandates(realMessages).stats);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
@@ -38,15 +39,18 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) =
   const [isAuraModalOpen, setIsAuraModalOpen] = useState<boolean>(false);
   const [auraSyncResult, setAuraSyncResult] = useState<AuraSyncResult | null>(null);
 
-  // Re-run synthetic statement audit
-  const runAudit = useCallback(() => {
-    setIsAuditing(true);
-    setTimeout(() => {
-      const { mandates: auditedMandates, stats: auditedStats } = auditSyntheticStatement();
-      setMandates(auditedMandates);
-      setStats(auditedStats);
-      setIsAuditing(false);
-    }, 400);
+  // Re-sync mandates when real SMS messages arrive from inbox or simulator
+  useEffect(() => {
+    if (realMessages && realMessages.length > 0) {
+      const { mandates: updatedMandates, stats: updatedStats } = auditCombinedMandates(realMessages);
+      setMandates(updatedMandates);
+      setStats(updatedStats);
+    }
+  }, [realMessages]);
+
+  // Open the Live Neo4j Aura Synchronizer
+  const handleOpenAuraAudit = useCallback(() => {
+    setIsAuraModalOpen(true);
   }, []);
 
   // Filtered mandates
@@ -84,8 +88,10 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) =
       {stats && (
         <AnnualBleedCard
           stats={stats}
-          onAuditPress={runAudit}
+          onAuditPress={handleOpenAuraAudit}
           isAuditing={isAuditing}
+          isAuraSynced={!!auraSyncResult?.threats}
+          auraLatency={auraSyncResult?.latencyMs}
         />
       )}
 

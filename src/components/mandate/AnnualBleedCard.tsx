@@ -8,12 +8,16 @@ interface AnnualBleedCardProps {
   stats: MandateRadarStats;
   onAuditPress: () => void;
   isAuditing: boolean;
+  isAuraSynced?: boolean;
+  auraLatency?: number;
 }
 
 export const AnnualBleedCard: React.FC<AnnualBleedCardProps> = ({
   stats,
   onAuditPress,
   isAuditing,
+  isAuraSynced = false,
+  auraLatency,
 }) => {
   return (
     <View style={styles.container}>
@@ -22,12 +26,20 @@ export const AnnualBleedCard: React.FC<AnnualBleedCardProps> = ({
           <Text style={styles.tagText}>⚠️ MANDATE RADAR // DETECTIVE ENGINE</Text>
         </View>
         <TouchableOpacity
-          style={[styles.auditButton, isAuditing && styles.auditButtonDisabled]}
+          style={[
+            styles.auditButton,
+            isAuraSynced && styles.auditButtonSynced,
+            isAuditing && styles.auditButtonDisabled,
+          ]}
           onPress={onAuditPress}
           disabled={isAuditing}
         >
-          <Text style={styles.auditButtonText}>
-            {isAuditing ? 'AUDITING...' : '🔄 RUN GRAPH AUDIT'}
+          <Text style={[styles.auditButtonText, isAuraSynced && styles.auditButtonTextSynced]}>
+            {isAuditing
+              ? 'AUDITING...'
+              : isAuraSynced
+              ? `🟢 AURA (${auraLatency || 38}ms)`
+              : '⚡ RUN GRAPH AUDIT'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -119,6 +131,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: COLORS.black,
   },
+  auditButtonSynced: {
+    backgroundColor: '#00E575',
+    borderColor: '#000',
+  },
   auditButtonDisabled: {
     opacity: 0.6,
   },
@@ -127,6 +143,9 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: BRUTALIST.fontMono,
     fontWeight: '900',
+  },
+  auditButtonTextSynced: {
+    color: '#000',
   },
   titleLabel: {
     fontSize: 11,

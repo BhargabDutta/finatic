@@ -40,10 +40,10 @@ const STORAGE_KEY_CREDS = '@finatic_neo4j_aura_creds';
  * The app will automatically use these credentials out-of-the-box!
  */
 export const DEFAULT_AURA_CREDENTIALS: Neo4jCredentials = {
-  uri: '', // e.g. 'neo4j+s://xxxxxxxx.databases.neo4j.io'
-  username: 'neo4j',
-  password: '', // e.g. 'your-database-password'
-  database: 'neo4j',
+  uri: 'neo4j+s://3091b73d.databases.neo4j.io', // e.g. 'neo4j+s://xxxxxxxx.databases.neo4j.io'
+  username: '3091b73d',
+  password: 'TD9Icd4m5kx_uFfgm5kDz_pGnML7bS5qkWblAh7mDpE', // e.g. 'your-database-password'
+  database: '3091b73d',
 };
 
 /**
