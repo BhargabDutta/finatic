@@ -43,14 +43,16 @@ import { SMSCard } from '../components/sms/SMSCard';
 import { SMSDetailModal } from '../components/sms/SMSDetailModal';
 import { TestSMSModal } from '../components/devtools/TestSMSModal';
 import { MandateRadarView } from '../components/mandate/MandateRadarView';
+import { ChatScreenView } from '../components/chat/ChatScreenView';
 
 export const HomeScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'MANDATE_RADAR' | 'SMS_FEED'>('MANDATE_RADAR');
+  const [activeTab, setActiveTab] = useState<'MANDATE_RADAR' | 'AI_CHATBOT' | 'SMS_FEED'>('MANDATE_RADAR');
+  const [chatInitialPrompt, setChatInitialPrompt] = useState<string>('');
   const [messages, setMessages] = useState<SMSMessage[]>([]);
   const [stats, setStats] = useState<ScanStats | null>(null);
   const [secondsRemaining, setSecondsRemaining] = useState<number>(SCAN_INTERVAL_SECONDS);
   const [isScanning, setIsScanning] = useState<boolean>(false);
-  const [lastScanTime, setLastScanTime] = useState<number>(Date.now());
+  const [lastScanTime, setLastScanTime] = useState<number>(() => Date.now());
   const [isNativeAndroid] = useState<boolean>(Platform.OS === 'android');
   const [hasPermission, setHasPermission] = useState<boolean>(false);
 
@@ -228,6 +230,8 @@ export const HomeScreen: React.FC = () => {
         statusText={
           activeTab === 'MANDATE_RADAR'
             ? 'MANDATE RADAR // AUTODEBIT ASSASSIN // NEO4J KNOWLEDGE GRAPH // SILENT BLEED: ₹62,328/YR // 4 CRITICAL THREATS DETECTED'
+            : activeTab === 'AI_CHATBOT'
+            ? 'SUBCLEAR AI // FASTAPI RENDER SERVICE // NLP DESCRIPTOR RESOLUTION // MULTI-RAIL RUNBOOKS // 100% SECURE'
             : `FINATIC RADAR // 3-MIN SCAN ACTIVE // ${messages.length} SMS ANALYZED // TOTAL DEBIT: ₹${(stats?.debitTotal || 0).toLocaleString()} // TOTAL CREDIT: ₹${(stats?.creditTotal || 0).toLocaleString()}`
         }
       />
@@ -240,7 +244,17 @@ export const HomeScreen: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text style={[styles.tabButtonText, activeTab === 'MANDATE_RADAR' && styles.tabButtonTextActive]}>
-            🎯 AUTO-DEBIT ASSASSIN
+            🎯 AUTO-DEBIT
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'AI_CHATBOT' && styles.tabButtonActive]}
+          onPress={() => setActiveTab('AI_CHATBOT')}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.tabButtonText, activeTab === 'AI_CHATBOT' && styles.tabButtonTextActive]}>
+            🤖 SUBCLEAR AI
           </Text>
         </TouchableOpacity>
 
@@ -250,19 +264,30 @@ export const HomeScreen: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text style={[styles.tabButtonText, activeTab === 'SMS_FEED' && styles.tabButtonTextActive]}>
-            ⚡ SMS INBOX RADAR
+            ⚡ SMS INBOX
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {activeTab === 'MANDATE_RADAR' ? (
-          <MandateRadarView />
-        ) : (
+      {activeTab === 'AI_CHATBOT' ? (
+        <ChatScreenView
+          initialPrompt={chatInitialPrompt}
+          onClearInitialPrompt={() => setChatInitialPrompt('')}
+        />
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {activeTab === 'MANDATE_RADAR' ? (
+            <MandateRadarView
+              onAskAI={(prompt) => {
+                setChatInitialPrompt(prompt);
+                setActiveTab('AI_CHATBOT');
+              }}
+            />
+          ) : (
           <>
             {/* 1. 3-Minute Scanner Status Card */}
             <ScanStatusCard
@@ -341,6 +366,7 @@ export const HomeScreen: React.FC = () => {
           </>
         )}
       </ScrollView>
+      )}
 
       {/* SMS Entity Detail Modal */}
       <SMSDetailModal

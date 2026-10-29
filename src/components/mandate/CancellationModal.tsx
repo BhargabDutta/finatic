@@ -53,7 +53,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
               <Text style={styles.headerBadge}>KILLSWITCH // CANCELLATION RUNBOOK</Text>
               <Text style={styles.headerTitle}>{mandate.merchantName}</Text>
               <Text style={styles.headerSubtitle}>
-                Rail: {mandate.paymentRail.replace('_', ' ')} // {mandate.account}
+                Rail: {mandate.paymentRail.replace('_', ' ')} {'//'} {mandate.account}
               </Text>
             </View>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -66,7 +66,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
             <View style={styles.umrnBox}>
               <Text style={styles.umrnLabel}>MANDATE REFERENCE / UMRN:</Text>
               <Text style={styles.umrnCode}>
-                {mandate.umrn || 'UMRN' + Math.floor(10000000 + Math.random() * 90000000)}
+                {mandate.umrn || 'UMRN99482187'}
               </Text>
               <Text style={styles.umrnHelp}>
                 Quote this exact reference when revoking in your banking app or filing a dispute.

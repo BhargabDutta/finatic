@@ -37,6 +37,7 @@ export const ScanStatusCard: React.FC<ScanStatusCardProps> = ({
   const progressPct = Math.max(0, Math.min(100, ((totalInterval - secondsLeft) / totalInterval) * 100));
 
   const formatLastScan = () => {
+    // eslint-disable-next-line react-hooks/purity
     const diffSec = Math.floor((Date.now() - lastScanTime) / 1000);
     if (diffSec < 60) return 'JUST NOW';
     const diffMin = Math.floor(diffSec / 60);

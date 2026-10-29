@@ -13,6 +13,7 @@ import { BRUTALIST } from '../../theme/styles';
 import { Mandate, ThreatType, MandateRadarStats } from '../../types/mandate';
 import { auditSyntheticStatement } from '../../services/mandateGraphEngine';
 import { generateCypherSeedScript } from '../../services/neo4jSync';
+import { buildMandateAuditPrompt } from '../../services/chatbotService';
 import { AnnualBleedCard } from './AnnualBleedCard';
 import { MandateCard } from './MandateCard';
 import { CancellationModal } from './CancellationModal';
@@ -20,9 +21,14 @@ import { CypherModal } from './CypherModal';
 
 type FilterType = 'ALL' | 'THREATS' | 'PRICE_CREEP' | 'TRIAL_TRAP' | 'DOUBLE_SUBSCRIPTION' | 'ZOMBIE_CHARGE';
 
-export const MandateRadarView: React.FC = () => {
-  const [mandates, setMandates] = useState<Mandate[]>([]);
-  const [stats, setStats] = useState<MandateRadarStats | null>(null);
+interface MandateRadarViewProps {
+  onAskAI?: (prompt: string) => void;
+}
+
+export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) => {
+  const [initialAudit] = useState(() => auditSyntheticStatement());
+  const [mandates, setMandates] = useState<Mandate[]>(initialAudit.mandates);
+  const [stats, setStats] = useState<MandateRadarStats | null>(initialAudit.stats);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
@@ -30,7 +36,7 @@ export const MandateRadarView: React.FC = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false);
   const [isCypherModalOpen, setIsCypherModalOpen] = useState<boolean>(false);
 
-  // Run initial synthetic statement audit
+  // Re-run synthetic statement audit
   const runAudit = useCallback(() => {
     setIsAuditing(true);
     setTimeout(() => {
@@ -40,10 +46,6 @@ export const MandateRadarView: React.FC = () => {
       setIsAuditing(false);
     }, 400);
   }, []);
-
-  useEffect(() => {
-    runAudit();
-  }, [runAudit]);
 
   // Filtered mandates
   const filteredMandates = useMemo(() => {
@@ -181,10 +183,45 @@ export const MandateRadarView: React.FC = () => {
               key={m.id}
               mandate={m}
               onCancelPress={handleCancelPress}
+              onAskAIPress={(mandate) => {
+                if (onAskAI) {
+                  onAskAI(
+                    buildMandateAuditPrompt({
+                      merchantName: mandate.merchantName,
+                      rawDescriptor: mandate.rawDescriptor,
+                      monthlyAmount: mandate.monthlyEstimate,
+                      paymentRail: mandate.paymentRail,
+                      threatType: mandate.threatType,
+                      status: mandate.status,
+                    })
+                  );
+                }
+              }}
             />
           ))
         )}
       </View>
+
+      {/* AI Copilot Audit Banner */}
+      {onAskAI && (
+        <View style={styles.aiCopilotCard}>
+          <View style={styles.aiCopilotTop}>
+            <Text style={styles.aiCopilotBadge}>🤖 SUBCLEAR AI COPILOT</Text>
+            <Text style={styles.aiCopilotStatus}>ACTIVE // FASTAPI HOSTED</Text>
+          </View>
+          <Text style={styles.aiCopilotTitle}>NEED DEEP SUBSCRIPTION INTELLIGENCE?</Text>
+          <Text style={styles.aiCopilotDesc}>
+            Chat with SubClear AI to decode obscure bank descriptors, generate customized cancellation dispute notices, or audit sneaky renewals.
+          </Text>
+          <TouchableOpacity
+            style={styles.aiCopilotButton}
+            onPress={() => onAskAI('Can you perform a full audit of all my active mandates and highlight the highest annualized risks?')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.aiCopilotButtonText}>💬 LAUNCH SUBCLEAR AI COPILOT</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Neo4j Graph Showcase Card */}
       <View style={styles.neo4jCard}>
@@ -302,6 +339,64 @@ const styles = StyleSheet.create({
     fontFamily: BRUTALIST.fontMono,
     color: '#999',
     marginTop: 4,
+  },
+  aiCopilotCard: {
+    backgroundColor: '#0F172A',
+    borderWidth: BRUTALIST.borderWidth,
+    borderColor: COLORS.cyan,
+    padding: 14,
+    marginBottom: 16,
+    ...BRUTALIST.shadowDefault,
+  },
+  aiCopilotTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  aiCopilotBadge: {
+    backgroundColor: COLORS.cyan,
+    color: '#000',
+    fontSize: 8.5,
+    fontFamily: BRUTALIST.fontMono,
+    fontWeight: '900',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  aiCopilotStatus: {
+    color: COLORS.cyan,
+    fontSize: 8.5,
+    fontFamily: BRUTALIST.fontMono,
+    fontWeight: '700',
+  },
+  aiCopilotTitle: {
+    fontSize: 13,
+    fontFamily: BRUTALIST.fontMono,
+    fontWeight: '900',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  aiCopilotDesc: {
+    fontSize: 9.5,
+    fontFamily: BRUTALIST.fontMono,
+    color: '#CBD5E1',
+    lineHeight: 14,
+    marginBottom: 10,
+  },
+  aiCopilotButton: {
+    backgroundColor: COLORS.cyan,
+    paddingVertical: 9,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#000',
+    ...BRUTALIST.shadowSm,
+  },
+  aiCopilotButtonText: {
+    color: '#000',
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontMono,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
   neo4jCard: {
     backgroundColor: '#000000',

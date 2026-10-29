@@ -16,6 +16,7 @@ export const SMSCard: React.FC<SMSCardProps> = ({ message, onPress }) => {
   const { parsed, date, body, address } = message;
 
   const formatTimeAgo = (ts: number) => {
+    // eslint-disable-next-line react-hooks/purity
     const diffMs = Date.now() - ts;
     const diffSec = Math.floor(diffMs / 1000);
     if (diffSec < 60) return 'JUST NOW';

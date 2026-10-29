@@ -7,9 +7,10 @@ import { Mandate } from '../../types/mandate';
 interface MandateCardProps {
   mandate: Mandate;
   onCancelPress: (mandate: Mandate) => void;
+  onAskAIPress?: (mandate: Mandate) => void;
 }
 
-export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress }) => {
+export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress, onAskAIPress }) => {
   const getRailBadgeStyle = () => {
     switch (mandate.paymentRail) {
       case 'UPI_AUTOPAY':
@@ -85,13 +86,25 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.killButton}
-          onPress={() => onCancelPress(mandate)}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.killButtonText}>⚡ KILLSWITCH</Text>
-        </TouchableOpacity>
+        <View style={styles.actionsGroup}>
+          {onAskAIPress && (
+            <TouchableOpacity
+              style={styles.aiButton}
+              onPress={() => onAskAIPress(mandate)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.aiButtonText}>🤖 AI AUDIT</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.killButton}
+            onPress={() => onCancelPress(mandate)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.killButtonText}>⚡ KILLSWITCH</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -239,11 +252,31 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 1,
   },
+  actionsGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  aiButton: {
+    backgroundColor: COLORS.cyan,
+    borderWidth: 2,
+    borderColor: COLORS.black,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    ...BRUTALIST.shadowSm,
+  },
+  aiButtonText: {
+    color: COLORS.black,
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontMono,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
   killButton: {
     backgroundColor: COLORS.black,
     borderWidth: 2,
     borderColor: COLORS.black,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     ...BRUTALIST.shadowSm,
   },
