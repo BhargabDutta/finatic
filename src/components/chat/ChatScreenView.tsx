@@ -38,7 +38,7 @@ export const ChatScreenView: React.FC<ChatScreenViewProps> = ({
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isServerWarmingUp, setIsServerWarmingUp] = useState(false);
 
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<any>(null);
 
   // Handle auto-scroll to bottom
   const scrollToBottom = useCallback((delay = 100) => {
