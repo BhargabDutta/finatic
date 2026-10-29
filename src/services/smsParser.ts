@@ -1,138 +1,155 @@
 import { ParsedFinancialData, TransactionType, ExpenseCategory } from '../types/sms';
 
-const KNOWN_MERCHANTS: { name: string; category: ExpenseCategory; pattern: RegExp }[] = [
-  // Food & Dining
-  { name: 'Swiggy', category: 'FOOD_DINING', pattern: /\b(swiggy|bundl\s*tech)\b/i },
-  { name: 'Zomato', category: 'FOOD_DINING', pattern: /\b(zomato|blinkit)\b/i },
-  { name: 'Starbucks', category: 'FOOD_DINING', pattern: /\bstarbucks\b/i },
-  { name: "McDonald's", category: 'FOOD_DINING', pattern: /\bmcdonald'?s\b/i },
-  { name: 'Uber Eats', category: 'FOOD_DINING', pattern: /\buber\s*eats\b/i },
-  { name: 'DoorDash', category: 'FOOD_DINING', pattern: /\bdoordash\b/i },
-  { name: 'Dominos', category: 'FOOD_DINING', pattern: /\bdomino'?s\b/i },
-  { name: 'KFC', category: 'FOOD_DINING', pattern: /\bkfc\b/i },
-
-  // Groceries
-  { name: 'Zepto', category: 'GROCERIES', pattern: /\bzepto\b/i },
-  { name: 'Blinkit', category: 'GROCERIES', pattern: /\bblinkit\b/i },
-  { name: 'BigBasket', category: 'GROCERIES', pattern: /\bbigbasket\b/i },
-  { name: 'Instamart', category: 'GROCERIES', pattern: /\binstamart\b/i },
-  { name: 'Walmart', category: 'GROCERIES', pattern: /\bwalmart\b/i },
-  { name: 'Target', category: 'GROCERIES', pattern: /\btarget\b/i },
-  { name: 'Trader Joe', category: 'GROCERIES', pattern: /\btrader\s*joe\b/i },
-
-  // Shopping & E-Commerce
-  { name: 'Amazon', category: 'SHOPPING', pattern: /\bamazon(?:\.com|\.in)?\b/i },
-  { name: 'Flipkart', category: 'SHOPPING', pattern: /\bflipkart\b/i },
-  { name: 'Myntra', category: 'SHOPPING', pattern: /\bmyntra\b/i },
-  { name: 'Apple', category: 'SHOPPING', pattern: /\bapple(?:\.com)?\b/i },
-  { name: 'Zara', category: 'SHOPPING', pattern: /\bzara\b/i },
-  { name: 'Nike', category: 'SHOPPING', pattern: /\bnike\b/i },
-
-  // Travel & Transport
-  { name: 'Uber', category: 'TRAVEL_TRANSPORT', pattern: /\buber(?!\s*eats)\b/i },
-  { name: 'Ola Cabs', category: 'TRAVEL_TRANSPORT', pattern: /\bola\s*(?:cabs)?\b/i },
-  { name: 'Lyft', category: 'TRAVEL_TRANSPORT', pattern: /\blyft\b/i },
-  { name: 'Rapido', category: 'TRAVEL_TRANSPORT', pattern: /\brapido\b/i },
-  { name: 'MakeMyTrip', category: 'TRAVEL_TRANSPORT', pattern: /\bmakemytrip\b/i },
-  { name: 'IndiGo Airlines', category: 'TRAVEL_TRANSPORT', pattern: /\bindigo\b/i },
-  { name: 'Shell Fuel', category: 'TRAVEL_TRANSPORT', pattern: /\bshell(?:\s*oil)?\b/i },
-  { name: 'Fuel Station', category: 'TRAVEL_TRANSPORT', pattern: /\b(petrol|diesel|fuel|hpcl|bpcl|iocl)\b/i },
-
-  // Entertainment & Subs
-  { name: 'Netflix', category: 'ENTERTAINMENT', pattern: /\bnetflix\b/i },
-  { name: 'Spotify', category: 'ENTERTAINMENT', pattern: /\bspotify\b/i },
-  { name: 'BookMyShow', category: 'ENTERTAINMENT', pattern: /\bbookmyshow\b/i },
-  { name: 'Disney+ Hotstar', category: 'ENTERTAINMENT', pattern: /\b(disney\+|hotstar)\b/i },
-  { name: 'YouTube Premium', category: 'ENTERTAINMENT', pattern: /\byoutube(?:\s*premium)?\b/i },
-
-  // Utilities & Telco
-  { name: 'Airtel', category: 'UTILITIES_BILLS', pattern: /\bairtel\b/i },
-  { name: 'Jio', category: 'UTILITIES_BILLS', pattern: /\b(?:reliance\s*)?jio\b/i },
-  { name: 'Electricity Board', category: 'UTILITIES_BILLS', pattern: /\b(bescom|tata\s*power|electricity|power\s*corp)\b/i },
-
-  // Investments
-  { name: 'Zerodha', category: 'INVESTMENTS', pattern: /\bzerodha\b/i },
-  { name: 'Groww', category: 'INVESTMENTS', pattern: /\bgroww\b/i },
-  { name: 'Mutual Fund SIP', category: 'INVESTMENTS', pattern: /\b(mutual\s*fund|sip|demat|etf|nav)\b/i },
+const RECURRING_MERCHANTS: { name: string; category: ExpenseCategory; pattern: RegExp }[] = [
+  { name: 'Netflix', category: 'ENTERTAINMENT', pattern: /\b(netflix|nflx)\b/i },
+  { name: 'Canva Pro', category: 'PRODUCTIVITY_TOOLS', pattern: /\b(canva|canva\s*sub)\b/i },
+  { name: 'Disney+ Hotstar', category: 'ENTERTAINMENT', pattern: /\b(disney\+|hotstar|disneyhotstar)\b/i },
+  { name: 'Cult.fit', category: 'HEALTH_FITNESS', pattern: /\b(cult\s*\.?fit|cure\s*\.?fit)\b/i },
+  { name: 'Spotify Premium', category: 'ENTERTAINMENT', pattern: /\b(spotify)\b/i },
+  { name: 'Jio Fiber', category: 'UTILITIES_BILLS', pattern: /\b(jio\s*fiber|reliance\s*jio|jio\s*infocomm)\b/i },
+  { name: 'Amazon Prime', category: 'ENTERTAINMENT', pattern: /\b(amazon\s*prime|prime\s*video|prime\s*member)\b/i },
+  { name: 'AWS Cloud', category: 'CLOUD_INFRA', pattern: /\b(amazon\s*web\s*services|aws|aws\s*cloud)\b/i },
+  { name: 'Google One / YouTube', category: 'CLOUD_INFRA', pattern: /\b(google\s*one|google\s*storage|youtube\s*premium|google\s*play)\b/i },
+  { name: 'Apple Services', category: 'ENTERTAINMENT', pattern: /\b(apple\s*music|icloud|apple\.com\/bill)\b/i },
+  { name: 'Airtel Broadband', category: 'UTILITIES_BILLS', pattern: /\b(airtel\s*broadband|airtel\s*fiber|airtel\s*autopay)\b/i },
+  { name: 'HDFC Ergo / Life', category: 'INSURANCE_EMI', pattern: /\b(hdfc\s*life|hdfc\s*ergo|max\s*life|lic|insurance)\b/i },
+  { name: 'Mutual Fund SIP', category: 'INVESTMENTS', pattern: /\b(sip|mutual\s*fund|zerodha|groww|nippon|hdfc\s*amc)\b/i },
 ];
 
 /**
- * Parses raw SMS text and metadata into high-confidence financial entities.
+ * STRICT PRIVACY SHIELD:
+ * Determines if an incoming SMS is genuinely an Auto-Payment or Recurring Mandate.
+ * Explicitly rejects:
+ * - OTPs and two-factor authentication codes
+ * - Personal P2P peer-to-peer transfers (e.g. transfers to friends/family)
+ * - One-time everyday merchant swipes (grocery, restaurant, retail POS)
+ * - Promotional spam, loan advertisements, telco alerts
+ */
+export function isAutoPaymentSMS(body: string, _address: string = ''): boolean {
+  const cleanBody = body.replace(/[\r\n]+/g, ' ').trim();
+
+  // 1. HARD REJECT: OTPs, 2FA, Secret Codes, Verification Numbers
+  if (
+    /\b(otp|verification\s*code|one\s*time\s*password|secret\s*code|security\s*code|use\s*code\s*\d{4,8})\b/i.test(
+      cleanBody
+    )
+  ) {
+    return false;
+  }
+
+  // 2. HARD REJECT: Promotional spam, loan approvals, discount codes
+  if (
+    /\b(congratulations|pre-approved|apply\s*now|discount\s*code|voucher|flat\s*\d+%\s*off|exclusive\s*offer|cash\s*prize)\b/i.test(
+      cleanBody
+    )
+  ) {
+    return false;
+  }
+
+  // 3. HARD REJECT: Pure Personal P2P Transfers (without mandate/autopay keywords)
+  const isP2P =
+    /\b(sent\s*to\s*[a-zA-Z]+\s*via\s*upi|transferred\s*to\s*vpa|fund\s*transfer\s*to\s*account|paid\s*to\s*[a-zA-Z]+\s*using\s*upi)\b/i.test(
+      cleanBody
+    );
+  const hasMandateKeyword =
+    /\b(autopay|auto-pay|mandate|standing\s*instruction|si|nach|recurring|subscription)\b/i.test(
+      cleanBody
+    );
+
+  if (isP2P && !hasMandateKeyword) {
+    return false;
+  }
+
+  // 4. HARD REJECT: One-time physical POS card swipes without recurring context
+  if (
+    /\b(swiped\s*at|pos\s*transaction|store\s*purchase|terminal\s*txn)\b/i.test(cleanBody) &&
+    !hasMandateKeyword
+  ) {
+    return false;
+  }
+
+  // 5. POSITIVE MATCH: Must explicitly contain Auto-Payment / Mandate patterns
+  const isUPIAutoPay = /\b(autopay|auto-pay|upi\s*autopay|upi\s*mandate|recurring\s*mandate)\b/i.test(
+    cleanBody
+  );
+  const isStandingInstruction = /\b(standing\s*instruction|si\s*debit|si-hdfc|si-icici|si-axis|si-sbi|card\s*si|e-mandate|emandate)\b/i.test(
+    cleanBody
+  );
+  const isNACHorECS = /\b(nach|e-nach|enach|ecs|auto\s*clearing|national\s*automated\s*clearing)\b/i.test(
+    cleanBody
+  );
+  const isRecurringBilling = /\b(recurring\s*(?:charge|debit|payment|bill)|auto\s*debit(?:ed)?|auto\s*renew(?:ed|al)?|subscription\s*renew(?:ed|al)?)\b/i.test(
+    cleanBody
+  );
+  const isPreDebitNotice = /\b(pre-debit\s*notification|mandate\s*execution|scheduled\s*auto(?:-)?debit|will\s*be\s*auto(?:-)?debited)\b/i.test(
+    cleanBody
+  );
+  const hasUMRN = /\b(umrn[0-9a-zA-Z]+|mandate\s*(?:id|ref|no))\b/i.test(cleanBody);
+
+  return (
+    isUPIAutoPay ||
+    isStandingInstruction ||
+    isNACHorECS ||
+    isRecurringBilling ||
+    isPreDebitNotice ||
+    hasUMRN
+  );
+}
+
+/**
+ * Parses raw auto-payment SMS into structured recurring financial entities.
  */
 export function parseSMS(body: string, address: string = ''): ParsedFinancialData {
   const cleanBody = body.replace(/[\r\n]+/g, ' ').trim();
-  const lower = cleanBody.toLowerCase();
 
-  // 1. Detect Bank or Sender Alphanumeric ID
+  // 1. Detect Bank or Financial Institution Sender
   const bankOrSender = extractSenderOrBank(address, cleanBody);
 
-  // 2. Check for OTP / 2FA Code First
-  const isOtp = /otp|verification\s*code|one\s*time\s*password|secret\s*code|security\s*code|use\s*code\s*\d{4,8}/i.test(cleanBody) &&
-                !/loan|offer|pre-approved/i.test(cleanBody);
+  // 2. Classify Auto-Payment Rail & Notification Type
+  const isPreDebit = /\b(pre-debit\s*notification|will\s*be\s*auto(?:-)?debited|scheduled\s*for\s*auto(?:-)?debit)\b/i.test(
+    cleanBody
+  );
+  const isUPI = /\b(upi\s*autopay|autopay|upi\s*mandate)\b/i.test(cleanBody);
+  const isSI = /\b(standing\s*instruction|si\s*debit|si-|card\s*si)\b/i.test(cleanBody);
+  const isNACH = /\b(nach|e-nach|enach|ecs)\b/i.test(cleanBody);
 
-  let otpCode: string | null = null;
-  if (isOtp) {
-    const otpMatch = cleanBody.match(/\b(\d{4,8})\b(?:\s*is\s*(?:your)?\s*(?:secret)?\s*otp|\s*is\s*your\s*verification\s*code|\s*to\s*verify)?/i);
-    if (otpMatch) {
-      otpCode = otpMatch[1];
-    }
+  let type: TransactionType = 'RECURRING_SUB';
+  if (isPreDebit) {
+    type = 'PRE_DEBIT_ALERT';
+  } else if (isUPI) {
+    type = 'UPI_AUTOPAY';
+  } else if (isSI) {
+    type = 'CARD_SI';
+  } else if (isNACH) {
+    type = 'NACH_ECS';
   }
 
-  // 3. Detect Transaction Type
-  let type: TransactionType = 'GENERAL_INFO';
-  let isFinancial = false;
-
-  if (isOtp) {
-    type = 'OTP_AUTH';
-    isFinancial = /amount|inr|rs\.?|\$|transaction/i.test(cleanBody);
-  } else if (/congratulations|pre-approved|apply\s*now|discount\s*code|voucher|flat\s*\d+%\s*off|exclusive\s*offer|cash\s*prize/i.test(cleanBody)) {
-    type = 'PROMOTIONAL';
-  } else if (/mutual\s*fund|\bsip\b|demat|allotted\s*units|dividend|shares\s*credited|invested\s*in/i.test(cleanBody)) {
-    type = 'INVESTMENT';
-    isFinancial = true;
-  } else if (/bill\s*due|due\s*date|statement\s*generated|total\s*(?:amount\s*)?due|minimum\s*(?:amount\s*)?due|payment\s*reminder/i.test(cleanBody)) {
-    type = 'BILL_DUE';
-    isFinancial = true;
-  } else if (/debited|spent|paid|withdrawn|charged|sent\s*(?:rs|inr|\$)|swiped|purchase\s*of|debit\s*card/i.test(cleanBody)) {
-    type = 'DEBIT';
-    isFinancial = true;
-  } else if (/credited|deposited|refund(?:ed)?|cashback|salary|received\s*(?:rs|inr|\$)/i.test(cleanBody)) {
-    type = 'CREDIT';
-    isFinancial = true;
-  } else if (/balance\s*is|bal\s*inr|available\s*limit/i.test(cleanBody)) {
-    type = 'GENERAL_INFO';
-    isFinancial = true;
-  }
-
-  // 4. Extract Amount & Currency
+  // 3. Extract Amount & Currency
   const { amount, currency, currencySymbol } = extractAmountAndCurrency(cleanBody);
 
-  // If there's an amount and a bank sender, it's financial
-  if (amount !== null && (type === 'DEBIT' || type === 'CREDIT' || type === 'BILL_DUE' || type === 'INVESTMENT')) {
-    isFinancial = true;
-  }
-
-  // 5. Extract Account / Card Digits
+  // 4. Extract Account / Card Digits
   const accountDigits = extractAccountDigits(cleanBody);
 
-  // 6. Extract Remaining Available Balance
+  // 5. Extract Remaining Balance (if reported)
   const balanceRemaining = extractAvailableBalance(cleanBody, amount);
 
-  // 7. Extract Merchant / Payee
-  const { merchant, category } = extractMerchantAndCategory(cleanBody, type);
+  // 6. Extract Canonical Merchant & Category
+  const { merchant, category } = extractMerchantAndCategory(cleanBody);
 
-  // 8. Extract Due Date (if BILL_DUE)
+  // 7. Extract Due Date / Next Debit Date
   const dueDate = extractDueDate(cleanBody);
+
+  // 8. Extract Mandate Reference / UMRN
+  const mandateReference = extractMandateReference(cleanBody);
 
   // 9. Extract Reference / UTR Number
   const referenceNumber = extractReferenceNumber(cleanBody);
 
-  // Calculate Confidence Score
-  let confidence = 50;
-  if (amount !== null) confidence += 25;
-  if (accountDigits) confidence += 10;
+  // Calculate High-Confidence Score
+  let confidence = 60;
+  if (amount !== null) confidence += 20;
+  if (mandateReference) confidence += 10;
   if (merchant) confidence += 10;
-  if (balanceRemaining !== null) confidence += 5;
 
   return {
     amount,
@@ -145,85 +162,76 @@ export function parseSMS(body: string, address: string = ''): ParsedFinancialDat
     accountDigits,
     balanceRemaining,
     referenceNumber,
+    mandateReference,
+    isPreDebitNotification: isPreDebit,
     dueDate,
-    otpCode,
     confidenceScore: Math.min(confidence, 100),
-    isFinancial,
+    isAutoPayment: true,
   };
 }
 
+function extractMandateReference(body: string): string | null {
+  // Matches UMRN (e.g. UMRN99482187) or Mandate ID
+  const umrnMatch = body.match(/\b(UMRN[0-9A-Z]{6,20})\b/i);
+  if (umrnMatch) return umrnMatch[1].toUpperCase();
+
+  const idMatch = body.match(/(?:mandate\s*(?:id|ref|no)[\s:]+)([A-Z0-9_-]{6,24})/i);
+  if (idMatch) return idMatch[1].toUpperCase();
+
+  const siMatch = body.match(/(SI-[A-Z0-9_-]+)/i);
+  if (siMatch) return siMatch[1].toUpperCase();
+
+  return null;
+}
+
 function extractSenderOrBank(address: string, body: string): string {
-  // Extract alphanumeric header (e.g., "VK-HDFCBK" -> "HDFC Bank")
   const senderUpper = address.toUpperCase();
 
   if (/HDFC/i.test(senderUpper) || /HDFC/i.test(body)) return 'HDFC Bank';
   if (/SBI/i.test(senderUpper) || /STATE BANK/i.test(body)) return 'State Bank of India';
   if (/ICICI/i.test(senderUpper) || /ICICI/i.test(body)) return 'ICICI Bank';
   if (/AXIS/i.test(senderUpper) || /AXIS/i.test(body)) return 'Axis Bank';
-  if (/KOTAK/i.test(senderUpper) || /KOTAK/i.test(body)) return 'Kotak Bank';
+  if (/KOTAK/i.test(senderUpper) || /KOTAK/i.test(body)) return 'Kotak Mahindra';
   if (/CHASE/i.test(senderUpper) || /CHASE/i.test(body)) return 'Chase Bank';
-  if (/WELLS/i.test(senderUpper) || /WELLS FARGO/i.test(body)) return 'Wells Fargo';
-  if (/CITI/i.test(senderUpper) || /CITIBANK/i.test(body)) return 'Citi Bank';
-  if (/BOA|AMER/i.test(senderUpper) || /BANK OF AMERICA/i.test(body)) return 'Bank of America';
-  if (/AMEX/i.test(senderUpper) || /AMERICAN EXPRESS/i.test(body)) return 'American Express';
-  if (/PAYTM/i.test(senderUpper)) return 'Paytm Payments';
-  if (/PHONEPE/i.test(senderUpper)) return 'PhonePe';
-  if (/GPAY/i.test(senderUpper)) return 'Google Pay';
+  if (/CITI/i.test(senderUpper) || /CITI/i.test(body)) return 'Citibank';
+  if (/WELLS/i.test(senderUpper) || /WELLS/i.test(body)) return 'Wells Fargo';
+  if (/BOB/i.test(senderUpper) || /BANK OF BARODA/i.test(body)) return 'Bank of Baroda';
+  if (/PNB/i.test(senderUpper) || /PUNJAB NATIONAL/i.test(body)) return 'PNB';
 
-  // Return clean address sender if present
-  const cleaned = address.replace(/^[A-Z]{2}-/i, '');
-  return cleaned.trim() || 'SMS Service';
+  if (address && address.length > 2) {
+    const clean = address.replace(/^[A-Z]{2}-/i, '');
+    return clean.toUpperCase();
+  }
+
+  return 'Authorized Bank';
 }
 
-function extractAmountAndCurrency(body: string): { amount: number | null; currency: string; currencySymbol: string } {
-  // Pattern 1: Explicit currency symbol or code before digits
-  // Exclude "avail bal: Rs. XXX" when searching for the primary txn amount
-  const bodyWithoutBal = body.replace(
-    /\b(?:avail(?:able)?\s*bal(?:ance)?|bal|balance|credit\s*limit)\b\s*[:\-]?\s*(?:rs\.?|inr|₹|\$|usd|€|eur|£|gbp)?\s*[0-9,]+(?:\.[0-9]{1,2})?/gi,
-    ' '
-  );
-
-  const regexBefore = /(?:rs\.?|inr|₹|\$|usd|€|eur|£|gbp)\s*([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/i;
-  const matchBefore = bodyWithoutBal.match(regexBefore) || body.match(regexBefore);
-
-  let amountStr: string | null = null;
-  let currency = 'INR';
-  let currencySymbol = '₹';
-
-  if (matchBefore) {
-    amountStr = matchBefore[1];
-    const matchFull = matchBefore[0].toLowerCase();
-    if (matchFull.includes('$') || matchFull.includes('usd')) {
-      currency = 'USD';
-      currencySymbol = '$';
-    } else if (matchFull.includes('€') || matchFull.includes('eur')) {
-      currency = 'EUR';
-      currencySymbol = '€';
-    } else if (matchFull.includes('£') || matchFull.includes('gbp')) {
-      currency = 'GBP';
-      currencySymbol = '£';
-    } else {
-      currency = 'INR';
-      currencySymbol = '₹';
-    }
-  } else {
-    // Pattern 2: Digits followed by currency code
-    const regexAfter = /([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)\s*(?:inr|usd|eur|gbp)/i;
-    const matchAfter = bodyWithoutBal.match(regexAfter) || body.match(regexAfter);
-    if (matchAfter) {
-      amountStr = matchAfter[1];
-      const matchFull = matchAfter[0].toLowerCase();
-      if (matchFull.includes('usd')) { currency = 'USD'; currencySymbol = '$'; }
-      else if (matchFull.includes('eur')) { currency = 'EUR'; currencySymbol = '€'; }
-      else if (matchFull.includes('gbp')) { currency = 'GBP'; currencySymbol = '£'; }
-      else { currency = 'INR'; currencySymbol = '₹'; }
+function extractAmountAndCurrency(body: string): {
+  amount: number | null;
+  currency: string;
+  currencySymbol: string;
+} {
+  const inrMatch = body.match(/(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)/i);
+  if (inrMatch) {
+    const num = parseFloat(inrMatch[1].replace(/,/g, ''));
+    if (!isNaN(num) && num > 0) {
+      return { amount: num, currency: 'INR', currencySymbol: '₹' };
     }
   }
 
-  if (amountStr) {
-    const cleanNum = parseFloat(amountStr.replace(/,/g, ''));
-    if (!isNaN(cleanNum)) {
-      return { amount: cleanNum, currency, currencySymbol };
+  const usdMatch = body.match(/(?:\$|usd)\s*([\d,]+(?:\.\d{1,2})?)/i);
+  if (usdMatch) {
+    const num = parseFloat(usdMatch[1].replace(/,/g, ''));
+    if (!isNaN(num) && num > 0) {
+      return { amount: num, currency: 'USD', currencySymbol: '$' };
+    }
+  }
+
+  const genericMatch = body.match(/\b(?:debited|spent|charged|for)\s+([\d,]+(?:\.\d{2})?)\b/i);
+  if (genericMatch) {
+    const num = parseFloat(genericMatch[1].replace(/,/g, ''));
+    if (!isNaN(num) && num > 0) {
+      return { amount: num, currency: 'INR', currencySymbol: '₹' };
     }
   }
 
@@ -231,69 +239,64 @@ function extractAmountAndCurrency(body: string): { amount: number | null; curren
 }
 
 function extractAccountDigits(body: string): string | null {
-  const match = body.match(/(?:a\/c|acct|account|card)\s*(?:no\.?|ending|\*+|xx+|x+)?\s*[:\-]?\s*[*xX]*([0-9]{3,4})\b/i);
-  return match ? `XX${match[1]}` : null;
+  const accMatch = body.match(/(?:a\/c|acct|account|card|ending(?:\s+in)?)\s*(?:no\.?)?\s*[*Xx]*(\d{4})/i);
+  if (accMatch) return `..${accMatch[1]}`;
+
+  const altMatch = body.match(/[*Xx]{2,}(\d{4})/);
+  if (altMatch) return `..${altMatch[1]}`;
+
+  return null;
 }
 
-function extractAvailableBalance(body: string, txnAmount: number | null): number | null {
-  const match = body.match(/(?:avail(?:able)?\s*bal(?:ance)?|bal:?)\s*(?:is)?\s*(?:rs\.?|inr|₹|\$|usd|€|£)?\s*([0-9,]+(?:\.[0-9]{1,2})?)/i);
-  if (match) {
-    const bal = parseFloat(match[1].replace(/,/g, ''));
-    if (!isNaN(bal) && bal !== txnAmount) {
-      return bal;
+function extractAvailableBalance(body: string, currentAmount: number | null): number | null {
+  const balMatch = body.match(/(?:avail(?:able)?\s*(?:bal(?:ance)?|limit)|bal(?:\s*is)?)[:\s]+(?:rs\.?|inr|₹|\$)?\s*([\d,]+(?:\.\d{1,2})?)/i);
+  if (balMatch) {
+    const val = parseFloat(balMatch[1].replace(/,/g, ''));
+    if (!isNaN(val) && val !== currentAmount) {
+      return val;
     }
   }
   return null;
 }
 
+function extractMerchantAndCategory(body: string): {
+  merchant: string | null;
+  category: ExpenseCategory;
+} {
+  for (const m of RECURRING_MERCHANTS) {
+    if (m.pattern.test(body)) {
+      return { merchant: m.name, category: m.category };
+    }
+  }
+
+  // Regex patterns to capture merchant name following common auto-payment phrases
+  const merchantRegexes = [
+    /(?:mandate\s*for|towards\s*mandate|auto-debit\s*for|mandate\s*to)\s+([A-Za-z0-9&.\-_ ]{3,25})/i,
+    /(?:at|to|for)\s+([A-Za-z0-9&.\-_ ]{3,20})\s+(?:on|via|ref|umrn)/i,
+    /(?:standing\s*instruction\s*on\s*credit\s*card\s*ending\s*\d{4}\s*for)\s+([A-Za-z0-9&.\-_ ]{3,20})/i,
+  ];
+
+  for (const regex of merchantRegexes) {
+    const match = body.match(regex);
+    if (match && match[1]) {
+      const candidate = match[1].trim();
+      if (!/^(the|a|an|your|account|card|rs|inr|date|ending)$/i.test(candidate)) {
+        return { merchant: candidate, category: 'OTHER' };
+      }
+    }
+  }
+
+  return { merchant: null, category: 'OTHER' };
+}
+
 function extractDueDate(body: string): string | null {
-  const match = body.match(/(?:due\s*(?:date|on|by)|before)\s*[:\-]?\s*([0-9]{1,2}[-\/][0-9]{1,2}[-\/][0-9]{2,4}|[0-9]{1,2}(?:st|nd|rd|th)?\s*[a-zA-Z]{3,9}(?:\s*'?\d{2,4})?|[a-zA-Z]{3,9}\s*[0-9]{1,2}(?:,\s*\d{4})?)/i);
-  return match ? match[1].trim() : null;
+  const dueMatch = body.match(/(?:due\s*(?:on|date)?|scheduled\s*(?:on|for))[:\s]+(\d{1,2}[-\/][A-Za-z0-9]{3,}[-\/]\d{2,4}|\d{1,2}\s+[A-Za-z]{3,}\s+\d{2,4}|\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i);
+  if (dueMatch) return dueMatch[1].toUpperCase();
+  return null;
 }
 
 function extractReferenceNumber(body: string): string | null {
-  const match = body.match(/(?:upi\s*ref|ref\s*(?:no\.?|id)?|utr\s*(?:no\.?|id)?|txn\s*(?:id|#)?)\s*[:\-]?\s*([A-Za-z0-9]{6,22})/i);
-  return match ? match[1] : null;
-}
-
-function extractMerchantAndCategory(
-  body: string,
-  type: TransactionType
-): { merchant: string | null; category: ExpenseCategory } {
-  // 1. Check known merchants list first
-  for (const item of KNOWN_MERCHANTS) {
-    if (item.pattern.test(body)) {
-      return { merchant: item.name, category: item.category };
-    }
-  }
-
-  // 2. Look for "at [Merchant]" pattern
-  const atMatch = body.match(/\bat\s+([A-Za-z0-9\.\s&-]{2,25})(?:\s+on|\s+dated|\s+ref|\s+for|\.|\,|$)/i);
-  if (atMatch) {
-    const rawMerchant = atMatch[1].trim();
-    if (!/credit\s*card|bank|account/i.test(rawMerchant)) {
-      return { merchant: rawMerchant, category: 'OTHER' };
-    }
-  }
-
-  // 3. Look for "to VPA [id]" or "to [Name]"
-  const vpaMatch = body.match(/to\s+(?:VPA\s+)?([a-zA-Z0-9\._-]+@[a-zA-Z0-9]+)/i);
-  if (vpaMatch) {
-    const vpa = vpaMatch[1];
-    return { merchant: vpa, category: 'OTHER' };
-  }
-
-  const toMatch = body.match(/to\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:on|ref|via)/);
-  if (toMatch) {
-    return { merchant: toMatch[1].trim(), category: 'OTHER' };
-  }
-
-  // 4. Fallback categories based on type
-  if (type === 'OTP_AUTH') return { merchant: null, category: 'SECURITY_AUTH' };
-  if (type === 'PROMOTIONAL') return { merchant: null, category: 'PROMOTION_SPAM' };
-  if (type === 'BILL_DUE') return { merchant: 'Utility / Card Issuer', category: 'UTILITIES_BILLS' };
-  if (type === 'INVESTMENT') return { merchant: 'Investment Portfolio', category: 'INVESTMENTS' };
-  if (type === 'CREDIT' && /salary|payroll|stipend/i.test(body)) return { merchant: 'Employer Payroll', category: 'SALARY_INCOME' };
-
-  return { merchant: null, category: 'OTHER' };
+  const refMatch = body.match(/(?:ref\s*(?:no\.?)?|txn\s*(?:id|no\.?)?|rrn)[:\s]+([A-Za-z0-9\-_]{6,20})/i);
+  if (refMatch) return refMatch[1];
+  return null;
 }

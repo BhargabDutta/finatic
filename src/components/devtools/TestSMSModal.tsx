@@ -26,29 +26,29 @@ interface TestSMSModalProps {
 
 const PRESET_TEMPLATES = [
   {
-    label: 'Swiggy Food Debit',
+    label: 'Netflix UPI AutoPay',
     sender: 'VK-HDFCBK',
-    body: 'HDFC Bank: Rs. 650.00 debited from A/c **4029 on just now to VPA swiggy@icici (UPI Ref 429103940192). Avail Bal: Rs 47,550.00.',
+    body: 'HDFC Bank: Rs. 649.00 debited from A/c **1234 towards UPI AutoPay mandate for NETFLIX. UMRN: UMRN99482187.',
   },
   {
-    label: 'Chase Starbucks Debit',
-    sender: 'CHASE',
-    body: 'Chase: You made a $14.25 debit card transaction with STARBUCKS on just now. Avail Bal: $1,266.15.',
+    label: 'Canva Pro Card SI',
+    sender: 'AX-AXISBK',
+    body: 'Axis Bank: Standing Instruction executed for Rs. 899.00 on Card **5678 for CANVA PRO. Next auto-debit Nov-2026.',
   },
   {
-    label: 'Salary Credit',
+    label: 'Cult.fit NACH e-Mandate',
+    sender: 'AX-ICICIB',
+    body: 'ICICI Bank: Auto-debit of Rs 1,750.00 processed via NACH mandate UMRN11928374 for CULT FIT HEALTHCARE.',
+  },
+  {
+    label: 'Hotstar Pre-Debit Alert',
     sender: 'VK-HDFCBK',
-    body: 'Dear Customer, INR 92,000.00 credited to your A/C XX4029 by SALARY/TECH CORP. Available Bal: INR 1,39,550.00.',
+    body: 'Pre-debit Notification: Rs. 299.00 will be auto-debited on 18-Oct for recurring mandate SI-HDFC-HOTSTAR on Card **1234.',
   },
   {
-    label: 'Credit Card Bill Due',
-    sender: 'CITIBK',
-    body: 'Citi Alert: Total amount due for card ending 9921 is USD 340.50. Due date is Oct 28. Min payment: $40.00.',
-  },
-  {
-    label: 'Banking OTP Code',
-    sender: 'SBIINB',
-    body: '719402 is your OTP for transaction of Rs 1,999.00 at AMAZON on SBI Card. Valid for 10 mins. Do not share.',
+    label: 'Apple iCloud Recurring',
+    sender: 'AX-ICICIB',
+    body: 'Pre-debit Notification: Rs. 89.00 will be auto-debited on 20-Oct-26 for recurring mandate for APPLE ICLOUD on Card **9012.',
   },
 ];
 

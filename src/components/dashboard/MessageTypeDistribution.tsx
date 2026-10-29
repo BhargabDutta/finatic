@@ -18,13 +18,11 @@ interface TypeItem {
 }
 
 const TYPES_META: TypeItem[] = [
-  { type: 'DEBIT', label: 'DEBITS', color: COLORS.coral },
-  { type: 'CREDIT', label: 'CREDITS', color: COLORS.lime },
-  { type: 'BILL_DUE', label: 'BILLS', color: COLORS.orange },
-  { type: 'OTP_AUTH', label: 'OTPS / 2FA', color: COLORS.yellow },
-  { type: 'INVESTMENT', label: 'INVESTMENT', color: COLORS.purple },
-  { type: 'PROMOTIONAL', label: 'SPAM / PROMO', color: COLORS.pink },
-  { type: 'GENERAL_INFO', label: 'GENERAL INFO', color: COLORS.cyan },
+  { type: 'UPI_AUTOPAY', label: 'UPI AUTOPAY', color: COLORS.cyan },
+  { type: 'CARD_SI', label: 'CARD SI', color: COLORS.coral },
+  { type: 'NACH_ECS', label: 'NACH / ECS', color: COLORS.yellow },
+  { type: 'PRE_DEBIT_ALERT', label: 'PRE-DEBITS', color: COLORS.orange },
+  { type: 'RECURRING_SUB', label: 'SUBSCRIPTIONS', color: COLORS.purple },
 ];
 
 export const MessageTypeDistribution: React.FC<MessageTypeDistributionProps> = ({
@@ -38,9 +36,9 @@ export const MessageTypeDistribution: React.FC<MessageTypeDistributionProps> = (
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <Ionicons name="layers" size={16} color={COLORS.ink} />
-          <Text style={styles.title}>SMS TYPE RADAR</Text>
+          <Text style={styles.title}>AUTOPAY RAIL RADAR</Text>
         </View>
-        <Text style={styles.subtitle}>{totalCount} MESSAGES CLASSIFIED</Text>
+        <Text style={styles.subtitle}>{totalCount} AUTOPAY MANDATES SCANNED</Text>
       </View>
 
       {/* Segmented Distribution Bar */}

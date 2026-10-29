@@ -31,13 +31,15 @@ export const SMSCard: React.FC<SMSCardProps> = ({ message, onPress }) => {
 
   const getAmountColor = () => {
     switch (parsed.type) {
-      case 'CREDIT':
-        return COLORS.lime;
-      case 'DEBIT':
+      case 'UPI_AUTOPAY':
+        return COLORS.cyan;
+      case 'CARD_SI':
         return COLORS.coral;
-      case 'BILL_DUE':
+      case 'NACH_ECS':
+        return '#8A6D00';
+      case 'PRE_DEBIT_ALERT':
         return COLORS.orange;
-      case 'INVESTMENT':
+      case 'RECURRING_SUB':
         return COLORS.purple;
       default:
         return COLORS.ink;
@@ -45,9 +47,8 @@ export const SMSCard: React.FC<SMSCardProps> = ({ message, onPress }) => {
   };
 
   const getAmountPrefix = () => {
-    if (parsed.type === 'CREDIT') return '+';
-    if (parsed.type === 'DEBIT') return '-';
-    return '';
+    if (parsed.type === 'PRE_DEBIT_ALERT') return '⏳ ';
+    return '⚡ -';
   };
 
   return (
@@ -94,15 +95,14 @@ export const SMSCard: React.FC<SMSCardProps> = ({ message, onPress }) => {
               </View>
             )}
           </View>
-        ) : parsed.otpCode ? (
-          /* OTP Display */
-          <View style={styles.otpSection}>
-            <Text style={styles.otpLabel}>DETECTED OTP / 2FA CODE:</Text>
-            <View style={styles.otpBox}>
-              <Text style={styles.otpCode}>{parsed.otpCode}</Text>
-            </View>
-          </View>
         ) : null}
+
+        {/* Mandate Reference Badge if available */}
+        {parsed.mandateReference && (
+          <View style={styles.mandateBadgeBox}>
+            <Text style={styles.mandateBadgeText}>MANDATE REF: {parsed.mandateReference}</Text>
+          </View>
+        )}
 
         {/* Message Snippet */}
         <Text style={styles.bodySnippet} numberOfLines={2}>
@@ -229,25 +229,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     gap: 8,
   },
-  otpLabel: {
-    fontFamily: BRUTALIST.fontMono,
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.ink,
-  },
-  otpBox: {
-    backgroundColor: COLORS.yellow,
-    borderWidth: 1.5,
-    borderColor: COLORS.ink,
+  mandateBadgeBox: {
+    backgroundColor: '#FFF9E6',
+    borderWidth: 1,
+    borderColor: '#D4A000',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
+    marginBottom: 6,
+    alignSelf: 'flex-start',
   },
-  otpCode: {
+  mandateBadgeText: {
     fontFamily: BRUTALIST.fontMono,
-    fontSize: 14,
+    fontSize: 9.5,
     fontWeight: '900',
-    letterSpacing: 2,
-    color: COLORS.ink,
+    color: '#8A6D00',
+    letterSpacing: 0.5,
   },
   bodySnippet: {
     fontFamily: BRUTALIST.fontMono,

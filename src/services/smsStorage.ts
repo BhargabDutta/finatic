@@ -3,42 +3,35 @@ import { SMSMessage, ScanStats, ExpenseCategory, TransactionType } from '../type
 import { getMockSMSMessages } from './mockData';
 
 const STORAGE_KEYS = {
-  MESSAGES: '@finatic_sms_messages_v1',
-  LAST_SCAN: '@finatic_last_scan_timestamp',
-  INITIALIZED: '@finatic_initialized_v1',
+  MESSAGES: '@finatic_autopay_mandates_v2',
+  LAST_SCAN: '@finatic_autopay_last_scan',
+  INITIALIZED: '@finatic_autopay_init_v2',
 };
 
 const DEFAULT_CATEGORY_TOTALS: Record<ExpenseCategory, number> = {
-  FOOD_DINING: 0,
-  SHOPPING: 0,
-  UTILITIES_BILLS: 0,
-  GROCERIES: 0,
-  TRAVEL_TRANSPORT: 0,
   ENTERTAINMENT: 0,
-  SALARY_INCOME: 0,
+  PRODUCTIVITY_TOOLS: 0,
+  HEALTH_FITNESS: 0,
+  UTILITIES_BILLS: 0,
+  CLOUD_INFRA: 0,
+  INSURANCE_EMI: 0,
   INVESTMENTS: 0,
-  HEALTHCARE: 0,
-  FINANCE_FEES: 0,
-  SECURITY_AUTH: 0,
-  PROMOTION_SPAM: 0,
   OTHER: 0,
 };
 
 const DEFAULT_TYPE_DISTRIBUTION: Record<TransactionType, number> = {
-  DEBIT: 0,
-  CREDIT: 0,
-  BILL_DUE: 0,
-  OTP_AUTH: 0,
-  INVESTMENT: 0,
-  PROMOTIONAL: 0,
-  GENERAL_INFO: 0,
+  UPI_AUTOPAY: 0,
+  CARD_SI: 0,
+  NACH_ECS: 0,
+  PRE_DEBIT_ALERT: 0,
+  RECURRING_SUB: 0,
 };
 
 export async function getStoredSMSMessages(): Promise<SMSMessage[]> {
   try {
     const json = await AsyncStorage.getItem(STORAGE_KEYS.MESSAGES);
     if (!json) {
-      // First run: populate with rich mock data
+      // First run: populate with pure auto-payment dataset
       const initial = getMockSMSMessages();
       await saveSMSMessages(initial);
       await AsyncStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
@@ -63,9 +56,7 @@ export async function saveSMSMessages(messages: SMSMessage[]): Promise<void> {
 
 export async function addSMSMessage(message: SMSMessage): Promise<SMSMessage[]> {
   const current = await getStoredSMSMessages();
-  // Prevent duplicate ID
-  const filtered = current.filter((m) => m.id !== message.id);
-  const updated = [message, ...filtered];
+  const updated = [message, ...current.filter((m) => m.id !== message.id)];
   await saveSMSMessages(updated);
   return updated;
 }
@@ -104,27 +95,25 @@ export function computeScanStats(messages: SMSMessage[], lastScanTime: number): 
   const typeDistribution: Record<TransactionType, number> = { ...DEFAULT_TYPE_DISTRIBUTION };
 
   for (const msg of messages) {
-    const { type, category, amount, isFinancial } = msg.parsed;
+    const { type, category, amount, isAutoPayment } = msg.parsed;
 
     typeDistribution[type] = (typeDistribution[type] || 0) + 1;
 
-    if (isFinancial) {
+    if (isAutoPayment) {
       financialCount++;
     }
 
     if (amount !== null && amount > 0) {
-      if (type === 'DEBIT') {
+      if (type === 'PRE_DEBIT_ALERT') {
+        billDueTotal += amount;
+      } else {
         debitTotal += amount;
         categoryTotals[category] = (categoryTotals[category] || 0) + amount;
-      } else if (type === 'CREDIT') {
-        creditTotal += amount;
-      } else if (type === 'BILL_DUE') {
-        billDueTotal += amount;
       }
     }
   }
 
-  const netFlow = creditTotal - debitTotal;
+  const netFlow = -debitTotal;
 
   return {
     totalMessages: messages.length,

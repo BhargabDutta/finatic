@@ -99,12 +99,22 @@ export const SMSDetailModal: React.FC<SMSDetailModalProps> = ({
                   />
                   <EntityRow label="TXN / REF NO." value={parsed.referenceNumber || 'N/A'} />
                   {parsed.dueDate && <EntityRow label="PAYMENT DUE DATE" value={parsed.dueDate} />}
-                  {parsed.otpCode && <EntityRow label="OTP / 2FA CODE" value={parsed.otpCode} highlight />}
+                  {parsed.mandateReference && (
+                    <EntityRow label="MANDATE / UMRN REF" value={parsed.mandateReference} highlight />
+                  )}
                   <EntityRow
                     label="NLP CONFIDENCE"
                     value={`${parsed.confidenceScore}% (${parsed.confidenceScore >= 75 ? 'HIGH' : 'STANDARD'})`}
                   />
                 </View>
+              </View>
+
+              {/* Privacy Shield Notice */}
+              <View style={styles.privacyCard}>
+                <Text style={styles.privacyTitle}>🔒 ZERO-KNOWLEDGE PRIVACY ACTIVE</Text>
+                <Text style={styles.privacyDesc}>
+                  Finatic never scans or stores OTPs, personal P2P transfers, or retail swipes. Only verified auto-payments and recurring mandates are captured.
+                </Text>
               </View>
 
               {/* Raw SMS Body */}
@@ -266,6 +276,27 @@ const styles = StyleSheet.create({
     color: COLORS.coral,
     backgroundColor: COLORS.yellow,
     paddingHorizontal: 4,
+  },
+  privacyCard: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: COLORS.lime,
+    padding: 10,
+    marginBottom: 14,
+  },
+  privacyTitle: {
+    fontFamily: BRUTALIST.fontMono,
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#15803D',
+    letterSpacing: 0.5,
+    marginBottom: 3,
+  },
+  privacyDesc: {
+    fontFamily: BRUTALIST.fontMono,
+    fontSize: 9.5,
+    color: '#166534',
+    lineHeight: 14,
   },
   rawSection: {
     marginBottom: 16,

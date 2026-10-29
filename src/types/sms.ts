@@ -1,25 +1,18 @@
 export type TransactionType =
-  | 'DEBIT'
-  | 'CREDIT'
-  | 'BILL_DUE'
-  | 'OTP_AUTH'
-  | 'INVESTMENT'
-  | 'PROMOTIONAL'
-  | 'GENERAL_INFO';
+  | 'UPI_AUTOPAY'
+  | 'CARD_SI'
+  | 'NACH_ECS'
+  | 'PRE_DEBIT_ALERT'
+  | 'RECURRING_SUB';
 
 export type ExpenseCategory =
-  | 'FOOD_DINING'
-  | 'SHOPPING'
-  | 'UTILITIES_BILLS'
-  | 'GROCERIES'
-  | 'TRAVEL_TRANSPORT'
   | 'ENTERTAINMENT'
-  | 'SALARY_INCOME'
+  | 'PRODUCTIVITY_TOOLS'
+  | 'HEALTH_FITNESS'
+  | 'UTILITIES_BILLS'
+  | 'CLOUD_INFRA'
+  | 'INSURANCE_EMI'
   | 'INVESTMENTS'
-  | 'HEALTHCARE'
-  | 'FINANCE_FEES'
-  | 'SECURITY_AUTH'
-  | 'PROMOTION_SPAM'
   | 'OTHER';
 
 export interface ParsedFinancialData {
@@ -33,10 +26,11 @@ export interface ParsedFinancialData {
   accountDigits: string | null;
   balanceRemaining: number | null;
   referenceNumber: string | null;
+  mandateReference: string | null; // UMRN or Mandate Ref
+  isPreDebitNotification: boolean;
   dueDate: string | null;
-  otpCode: string | null;
   confidenceScore: number; // 0 - 100
-  isFinancial: boolean;
+  isAutoPayment: boolean;
 }
 
 export interface SMSMessage {
@@ -63,11 +57,9 @@ export interface ScanStats {
 
 export type FilterCategory =
   | 'ALL'
-  | 'DEBIT'
-  | 'CREDIT'
-  | 'BILL_DUE'
-  | 'OTP_AUTH'
-  | 'INVESTMENT'
-  | 'PROMOTIONAL';
+  | 'UPI_AUTOPAY'
+  | 'CARD_SI'
+  | 'NACH_ECS'
+  | 'PRE_DEBIT_ALERT';
 
 export type SortOrder = 'NEWEST' | 'OLDEST' | 'AMOUNT_HIGH' | 'AMOUNT_LOW';

@@ -20,13 +20,14 @@ interface CategoryConfig {
 }
 
 const CATEGORIES_TO_DISPLAY: CategoryConfig[] = [
-  { key: 'FOOD_DINING', label: 'FOOD & DINING', icon: 'restaurant-outline', color: COLORS.yellow },
-  { key: 'SHOPPING', label: 'SHOPPING & RETAIL', icon: 'cart-outline', color: COLORS.cyan },
-  { key: 'GROCERIES', label: 'GROCERIES', icon: 'basket-outline', color: COLORS.lime },
-  { key: 'UTILITIES_BILLS', label: 'UTILITIES & BILLS', icon: 'flash-outline', color: COLORS.orange },
-  { key: 'TRAVEL_TRANSPORT', label: 'TRAVEL & COMMUTE', icon: 'car-outline', color: COLORS.purple },
-  { key: 'ENTERTAINMENT', label: 'ENTERTAINMENT', icon: 'film-outline', color: COLORS.pink },
-  { key: 'OTHER', label: 'OTHER EXPENSES', icon: 'ellipsis-horizontal-outline', color: COLORS.paperDark },
+  { key: 'ENTERTAINMENT', label: 'ENTERTAINMENT (OTT/MUSIC)', icon: 'film-outline', color: COLORS.pink },
+  { key: 'PRODUCTIVITY_TOOLS', label: 'DESIGN & PRODUCTIVITY', icon: 'color-palette-outline', color: COLORS.cyan },
+  { key: 'HEALTH_FITNESS', label: 'FITNESS & GYM', icon: 'fitness-outline', color: COLORS.yellow },
+  { key: 'UTILITIES_BILLS', label: 'FIBER & UTILITIES', icon: 'flash-outline', color: COLORS.orange },
+  { key: 'CLOUD_INFRA', label: 'CLOUD & SERVERS', icon: 'cloud-outline', color: COLORS.purple },
+  { key: 'INSURANCE_EMI', label: 'INSURANCE & EMI', icon: 'shield-checkmark-outline', color: COLORS.lime },
+  { key: 'INVESTMENTS', label: 'SIP & INVESTMENTS', icon: 'trending-up-outline', color: '#0070F3' },
+  { key: 'OTHER', label: 'OTHER RECURRING', icon: 'ellipsis-horizontal-outline', color: COLORS.paperDark },
 ];
 
 export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({

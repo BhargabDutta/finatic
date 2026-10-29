@@ -21,13 +21,11 @@ interface SMSFilterBarProps {
 }
 
 const FILTER_OPTIONS: { id: FilterCategory; label: string }[] = [
-  { id: 'ALL', label: 'ALL SMS' },
-  { id: 'DEBIT', label: 'DEBITS' },
-  { id: 'CREDIT', label: 'CREDITS' },
-  { id: 'BILL_DUE', label: 'BILLS' },
-  { id: 'OTP_AUTH', label: 'OTPS' },
-  { id: 'INVESTMENT', label: 'INVEST' },
-  { id: 'PROMOTIONAL', label: 'SPAM' },
+  { id: 'ALL', label: 'ALL AUTOPAYS' },
+  { id: 'UPI_AUTOPAY', label: 'UPI AUTOPAY' },
+  { id: 'CARD_SI', label: 'CARD SI' },
+  { id: 'NACH_ECS', label: 'NACH / ECS' },
+  { id: 'PRE_DEBIT_ALERT', label: 'PRE-DEBITS' },
 ];
 
 export const SMSFilterBar: React.FC<SMSFilterBarProps> = ({

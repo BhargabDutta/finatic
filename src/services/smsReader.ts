@@ -1,6 +1,6 @@
-import { Platform, PermissionsAndroid, NativeModules, Alert } from 'react-native';
+import { Platform, PermissionsAndroid, NativeModules } from 'react-native';
 import { SMSMessage } from '../types/sms';
-import { parseSMS } from './smsParser';
+import { parseSMS, isAutoPaymentSMS } from './smsParser';
 import { getStoredSMSMessages, saveSMSMessages, setLastScanTimestamp } from './smsStorage';
 import { generateRandomIncomingSMS } from './mockData';
 
@@ -88,7 +88,13 @@ export async function scanSMSInbox(simulateIncomingOnScan: boolean = false): Pro
           (count: number, smsList: string) => {
             try {
               const list = JSON.parse(smsList);
-              const mapped: SMSMessage[] = list.map((item: any) => ({
+              // PRIVACY SHIELD: Filter strictly for auto-payment / recurring mandate messages.
+              // All OTPs, personal P2P transfers, and non-recurring transactions are discarded in-memory.
+              const autoPaymentOnly = list.filter((item: any) =>
+                isAutoPaymentSMS(item.body || '', item.address || '')
+              );
+
+              const mapped: SMSMessage[] = autoPaymentOnly.map((item: any) => ({
                 id: item._id?.toString() || `${item.date}-${Math.random()}`,
                 address: item.address || 'Unknown',
                 body: item.body || '',

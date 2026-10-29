@@ -15,12 +15,12 @@ export const UrgentAlertsCard: React.FC<UrgentAlertsCardProps> = ({
   messages,
   onSelectMessage,
 }) => {
-  // Find bill due messages
-  const billDues = messages.filter((m) => m.parsed.type === 'BILL_DUE');
+  // Find pre-debit notifications (upcoming auto-debits)
+  const billDues = messages.filter((m) => m.parsed.type === 'PRE_DEBIT_ALERT');
 
-  // Find recent high expenses (>= ₹5,000 or >= $100)
+  // Find high recurring auto-debits (>= ₹1,500)
   const highExpenses = messages.filter(
-    (m) => m.parsed.type === 'DEBIT' && (m.parsed.amount || 0) >= 4000
+    (m) => m.parsed.type !== 'PRE_DEBIT_ALERT' && (m.parsed.amount || 0) >= 1500
   );
 
   if (billDues.length === 0 && highExpenses.length === 0) {

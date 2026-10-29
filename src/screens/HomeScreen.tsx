@@ -168,12 +168,10 @@ export const HomeScreen: React.FC = () => {
   const filterCounts = useMemo(() => {
     const counts: Record<FilterCategory, number> = {
       ALL: messages.length,
-      DEBIT: 0,
-      CREDIT: 0,
-      BILL_DUE: 0,
-      OTP_AUTH: 0,
-      INVESTMENT: 0,
-      PROMOTIONAL: 0,
+      UPI_AUTOPAY: 0,
+      CARD_SI: 0,
+      NACH_ECS: 0,
+      PRE_DEBIT_ALERT: 0,
     };
 
     for (const m of messages) {
@@ -232,7 +230,7 @@ export const HomeScreen: React.FC = () => {
             ? 'MANDATE RADAR // AUTODEBIT ASSASSIN // NEO4J KNOWLEDGE GRAPH // SILENT BLEED: ₹62,328/YR // 4 CRITICAL THREATS DETECTED'
             : activeTab === 'AI_CHATBOT'
             ? 'SUBCLEAR AI // FASTAPI RENDER SERVICE // NLP DESCRIPTOR RESOLUTION // MULTI-RAIL RUNBOOKS // 100% SECURE'
-            : `FINATIC RADAR // 3-MIN SCAN ACTIVE // ${messages.length} SMS ANALYZED // TOTAL DEBIT: ₹${(stats?.debitTotal || 0).toLocaleString()} // TOTAL CREDIT: ₹${(stats?.creditTotal || 0).toLocaleString()}`
+            : `FINATIC RADAR // PRIVACY SHIELD ACTIVE // ${messages.length} AUTOPAY MANDATES SCANNED // ZERO OTPS // ZERO P2P STORED // TOTAL: ₹${(stats?.debitTotal || 0).toLocaleString()}`
         }
       />
 

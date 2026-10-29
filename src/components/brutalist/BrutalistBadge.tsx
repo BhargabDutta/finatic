@@ -28,20 +28,16 @@ export const BrutalistBadge: React.FC<BrutalistBadgeProps> = ({
     }
 
     switch (type) {
-      case 'DEBIT':
-        return { bg: COLORS.coral, text: COLORS.ink };
-      case 'CREDIT':
-        return { bg: COLORS.lime, text: COLORS.ink };
-      case 'BILL_DUE':
-        return { bg: COLORS.orange, text: COLORS.white };
-      case 'OTP_AUTH':
-        return { bg: COLORS.yellow, text: COLORS.ink };
-      case 'INVESTMENT':
-        return { bg: COLORS.purple, text: COLORS.white };
-      case 'PROMOTIONAL':
-        return { bg: COLORS.pink, text: COLORS.ink };
-      case 'GENERAL_INFO':
+      case 'UPI_AUTOPAY':
         return { bg: COLORS.cyan, text: COLORS.ink };
+      case 'CARD_SI':
+        return { bg: COLORS.coral, text: COLORS.white };
+      case 'NACH_ECS':
+        return { bg: COLORS.yellow, text: COLORS.ink };
+      case 'PRE_DEBIT_ALERT':
+        return { bg: COLORS.orange, text: COLORS.white };
+      case 'RECURRING_SUB':
+        return { bg: COLORS.purple, text: COLORS.white };
       default:
         return { bg: COLORS.paperDark, text: COLORS.ink };
     }
