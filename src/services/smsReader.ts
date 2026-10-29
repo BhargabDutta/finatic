@@ -1,4 +1,5 @@
 import { Platform, PermissionsAndroid, NativeModules } from 'react-native';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { SMSMessage } from '../types/sms';
 import { parseSMS, isAutoPaymentSMS } from './smsParser';
 import { getStoredSMSMessages, saveSMSMessages, setLastScanTimestamp } from './smsStorage';
@@ -11,19 +12,38 @@ export interface ScanResult {
   permissionGranted: boolean;
 }
 
+export interface PermissionResult {
+  granted: boolean;
+  reason?: 'EXPO_GO' | 'NOT_ANDROID' | 'DENIED';
+}
+
+/**
+ * Checks if running inside Expo Go client app (which lacks READ_SMS in its Google Play manifest)
+ */
+export const isRunningInExpoGo: boolean =
+  Constants.appOwnership === 'expo' ||
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
 /**
  * Checks whether native SMS reading is available (present in APK / dev build, absent in Expo Go)
  */
 export function isNativeSMSAvailable(): boolean {
+  if (isRunningInExpoGo) {
+    return false;
+  }
   return Platform.OS === 'android' && Boolean(NativeModules.Sms);
 }
 
 /**
  * Requests Android READ_SMS permission
  */
-export async function requestSMSPermissions(): Promise<boolean> {
+export async function requestSMSPermissions(): Promise<PermissionResult> {
+  if (isRunningInExpoGo) {
+    return { granted: false, reason: 'EXPO_GO' };
+  }
+
   if (Platform.OS !== 'android') {
-    return false;
+    return { granted: false, reason: 'NOT_ANDROID' };
   }
 
   try {
@@ -36,10 +56,14 @@ export async function requestSMSPermissions(): Promise<boolean> {
         buttonNegative: 'Deny',
       }
     );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
+    const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+    return {
+      granted: isGranted,
+      reason: isGranted ? undefined : 'DENIED',
+    };
   } catch (err) {
     console.warn('Error requesting SMS permission:', err);
-    return false;
+    return { granted: false, reason: 'DENIED' };
   }
 }
 
@@ -47,7 +71,7 @@ export async function requestSMSPermissions(): Promise<boolean> {
  * Checks if SMS permission is already granted
  */
 export async function checkSMSPermission(): Promise<boolean> {
-  if (Platform.OS !== 'android') {
+  if (isRunningInExpoGo || Platform.OS !== 'android') {
     return false;
   }
 

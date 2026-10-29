@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { BrutalistCard } from '../brutalist/BrutalistCard';
@@ -16,6 +16,7 @@ interface ScanStatusCardProps {
   isNativeAndroid: boolean;
   hasPermission: boolean;
   onRequestPermission: () => void;
+  onOpenSimulator?: () => void;
 }
 
 export const ScanStatusCard: React.FC<ScanStatusCardProps> = ({
@@ -28,6 +29,7 @@ export const ScanStatusCard: React.FC<ScanStatusCardProps> = ({
   isNativeAndroid,
   hasPermission,
   onRequestPermission,
+  onOpenSimulator,
 }) => {
   // Format MM:SS
   const mins = Math.floor(secondsLeft / 60);
@@ -100,11 +102,20 @@ export const ScanStatusCard: React.FC<ScanStatusCardProps> = ({
             size="sm"
           />
         ) : (
-          <View style={styles.syncModeTag}>
+          <Pressable
+            style={styles.syncModeTag}
+            onPress={isNativeAndroid ? undefined : (onOpenSimulator || onRequestPermission)}
+          >
+            <Ionicons
+              name={isNativeAndroid && hasPermission ? 'radio-outline' : 'flask-outline'}
+              size={12}
+              color={COLORS.ink}
+              style={{ marginRight: 4 }}
+            />
             <Text style={styles.syncModeText}>
-              {isNativeAndroid && hasPermission ? 'PHONE INBOX SYNC' : 'LIVE DEMO & SIMULATOR'}
+              {isNativeAndroid && hasPermission ? 'PHONE INBOX SYNC' : 'EXPO GO SANDBOX (TAP TO TEST)'}
             </Text>
-          </View>
+          </Pressable>
         )}
       </View>
     </BrutalistCard>

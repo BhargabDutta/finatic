@@ -24,6 +24,7 @@ import {
   scanSMSInbox,
   requestSMSPermissions,
   checkSMSPermission,
+  isRunningInExpoGo,
 } from '../services/smsReader';
 import {
   registerBackgroundScan,
@@ -33,6 +34,8 @@ import {
 // Brutalist Components
 import { BrutalistHeader } from '../components/brutalist/BrutalistHeader';
 import { BrutalistTicker } from '../components/brutalist/BrutalistTicker';
+import { BrutalistButton } from '../components/brutalist/BrutalistButton';
+import { Ionicons } from '@expo/vector-icons';
 import { ScanStatusCard } from '../components/dashboard/ScanStatusCard';
 import { FinancialSummaryCard } from '../components/dashboard/FinancialSummaryCard';
 import { CategoryBreakdownChart } from '../components/dashboard/CategoryBreakdownChart';
@@ -53,7 +56,7 @@ export const HomeScreen: React.FC = () => {
   const [secondsRemaining, setSecondsRemaining] = useState<number>(SCAN_INTERVAL_SECONDS);
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [lastScanTime, setLastScanTime] = useState<number>(() => Date.now());
-  const [isNativeAndroid] = useState<boolean>(Platform.OS === 'android');
+  const [isNativeAndroid] = useState<boolean>(() => Platform.OS === 'android' && !isRunningInExpoGo);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
 
   // Filters & Search
@@ -136,10 +139,21 @@ export const HomeScreen: React.FC = () => {
   }, [executeScan]);
 
   const handleRequestPermission = async () => {
-    const granted = await requestSMSPermissions();
-    setHasPermission(granted);
-    if (granted) {
+    const res = await requestSMSPermissions();
+    setHasPermission(res.granted);
+    if (res.granted) {
       executeScan(false);
+    } else if (res.reason === 'EXPO_GO') {
+      Alert.alert(
+        '📱 Expo Go SMS Sandbox',
+        'Google Play Store strictly prohibits the Expo Go client app from declaring the Android READ_SMS permission.\n\n' +
+        '• In Expo Go: Finatic operates in Auto-Payment Simulator Mode with authentic Indian bank mandate data.\n\n' +
+        '• For Real SMS: Install the standalone "finatic.apk" generated in your project folder, which has full native SMS permissions enabled.',
+        [
+          { text: 'Open SMS Simulator', onPress: () => setIsSimulatorOpen(true) },
+          { text: 'Got It', style: 'cancel' }
+        ]
+      );
     } else {
       Alert.alert(
         'Permission Denied',
@@ -298,7 +312,29 @@ export const HomeScreen: React.FC = () => {
               isNativeAndroid={isNativeAndroid}
               hasPermission={hasPermission}
               onRequestPermission={handleRequestPermission}
+              onOpenSimulator={() => setIsSimulatorOpen(true)}
             />
+
+            {/* Expo Go Sandbox Notice Banner */}
+            {isRunningInExpoGo && (
+              <View style={styles.expoNoticeBanner}>
+                <View style={styles.expoNoticeHeader}>
+                  <Ionicons name="information-circle" size={16} color={COLORS.ink} />
+                  <Text style={styles.expoNoticeTitle}>EXPO GO: DEMO & SIMULATOR MODE</Text>
+                </View>
+                <Text style={styles.expoNoticeText}>
+                  Google Play restricts the Expo Go client app from accessing real device SMS. To scan your phone&apos;s real SMS inbox, install the standalone <Text style={{ fontWeight: '900' }}>finatic.apk</Text>.
+                </Text>
+                <View style={styles.expoNoticeActions}>
+                  <BrutalistButton
+                    title="🧪 TEST / PASTE REAL SMS"
+                    onPress={() => setIsSimulatorOpen(true)}
+                    variant="yellow"
+                    size="sm"
+                  />
+                </View>
+              </View>
+            )}
 
             {/* 2. Urgent Financial Alerts (Upcoming Bills, High Debits) */}
             <UrgentAlertsCard messages={messages} onSelectMessage={handleOpenDetail} />
@@ -469,5 +505,36 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.mutedText,
     textAlign: 'center',
+  },
+  expoNoticeBanner: {
+    backgroundColor: '#FFF9D2',
+    borderWidth: BRUTALIST.borderWidth,
+    borderColor: COLORS.ink,
+    padding: 12,
+    marginBottom: 14,
+    ...BRUTALIST.shadowSm,
+  },
+  expoNoticeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  expoNoticeTitle: {
+    fontFamily: BRUTALIST.fontMono,
+    fontSize: 11,
+    fontWeight: '900',
+    color: COLORS.ink,
+    letterSpacing: 0.5,
+  },
+  expoNoticeText: {
+    fontFamily: BRUTALIST.fontMono,
+    fontSize: 10.5,
+    color: COLORS.ink,
+    lineHeight: 15,
+  },
+  expoNoticeActions: {
+    marginTop: 8,
+    flexDirection: 'row',
   },
 });
