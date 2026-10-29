@@ -35,6 +35,18 @@ export interface AuraSyncResult {
 const STORAGE_KEY_CREDS = '@finatic_neo4j_aura_creds';
 
 /**
+ * DEFAULT NEO4J AURA CONFIGURATION IN CODE
+ * You can put your permanent Neo4j Aura URI and password here.
+ * The app will automatically use these credentials out-of-the-box!
+ */
+export const DEFAULT_AURA_CREDENTIALS: Neo4jCredentials = {
+  uri: '', // e.g. 'neo4j+s://xxxxxxxx.databases.neo4j.io'
+  username: 'neo4j',
+  password: '', // e.g. 'your-database-password'
+  database: 'neo4j',
+};
+
+/**
  * Base64 helper compatible with all React Native and JS runtimes
  */
 export function toBase64(input: string): string {
@@ -82,15 +94,22 @@ export function resolveAuraHttpEndpoint(uri: string, database: string = 'neo4j')
 }
 
 /**
- * Load saved credentials from AsyncStorage
+ * Load saved credentials from AsyncStorage with code fallback
  */
-export async function getStoredAuraCredentials(): Promise<Neo4jCredentials | null> {
+export async function getStoredAuraCredentials(): Promise<Neo4jCredentials> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY_CREDS);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        uri: parsed.uri || DEFAULT_AURA_CREDENTIALS.uri,
+        username: parsed.username || DEFAULT_AURA_CREDENTIALS.username,
+        password: parsed.password || DEFAULT_AURA_CREDENTIALS.password,
+        database: parsed.database || DEFAULT_AURA_CREDENTIALS.database,
+      };
+    }
+  } catch {}
+  return { ...DEFAULT_AURA_CREDENTIALS };
 }
 
 /**
