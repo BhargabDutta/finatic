@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,18 +6,18 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
-import { Mandate, ThreatType, MandateRadarStats } from '../../types/mandate';
+import { Mandate, MandateRadarStats } from '../../types/mandate';
 import { auditSyntheticStatement } from '../../services/mandateGraphEngine';
-import { generateCypherSeedScript } from '../../services/neo4jSync';
+import { AuraSyncResult } from '../../services/neo4jSync';
 import { buildMandateAuditPrompt } from '../../services/chatbotService';
 import { AnnualBleedCard } from './AnnualBleedCard';
 import { MandateCard } from './MandateCard';
 import { CancellationModal } from './CancellationModal';
 import { CypherModal } from './CypherModal';
+import { Neo4jAuraSyncModal } from './Neo4jAuraSyncModal';
 
 type FilterType = 'ALL' | 'THREATS' | 'PRICE_CREEP' | 'TRIAL_TRAP' | 'DOUBLE_SUBSCRIPTION' | 'ZOMBIE_CHARGE';
 
@@ -35,6 +35,8 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) =
   const [activeMandateForCancel, setActiveMandateForCancel] = useState<Mandate | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false);
   const [isCypherModalOpen, setIsCypherModalOpen] = useState<boolean>(false);
+  const [isAuraModalOpen, setIsAuraModalOpen] = useState<boolean>(false);
+  const [auraSyncResult, setAuraSyncResult] = useState<AuraSyncResult | null>(null);
 
   // Re-run synthetic statement audit
   const runAudit = useCallback(() => {
@@ -74,14 +76,6 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) =
   const handleCancelPress = (mandate: Mandate) => {
     setActiveMandateForCancel(mandate);
     setIsCancelModalOpen(true);
-  };
-
-  const showNeo4jScriptInfo = () => {
-    Alert.alert(
-      'Neo4j Knowledge Graph Seed',
-      `Graph Schema Generated!\n\n• 53 Nodes (User, Accounts, Mandates, Merchants, Events)\n• 68 Directed Edges\n\nThe script is saved at:\nscripts/seed-neo4j.cypher\n\nRun this in Neo4j Browser or Bloom to see the live glowing graph!`,
-      [{ text: 'OK' }]
-    );
   };
 
   return (
@@ -226,16 +220,39 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) =
       {/* Neo4j Graph Showcase Card */}
       <View style={styles.neo4jCard}>
         <View style={styles.neo4jTop}>
-          <Text style={styles.neo4jBadge}>NEO4J GRAPH ENGINE</Text>
-          <Text style={styles.neo4jStatus}>CONNECTED // 53 NODES</Text>
+          <Text style={[styles.neo4jBadge, auraSyncResult?.threats && styles.neo4jBadgeLive]}>
+            {auraSyncResult?.threats ? '🟢 AURA LIVE SYNCED' : 'NEO4J AURA GATEWAY'}
+          </Text>
+          <Text style={styles.neo4jStatus}>
+            {auraSyncResult?.threats
+              ? `⚡ ${auraSyncResult.latencyMs}ms // ${auraSyncResult.threats.nodeCount} NODES`
+              : 'STANDBY // TRANSACTIONAL HTTP'}
+          </Text>
         </View>
         <Text style={styles.neo4jTitle}>FINANCIAL KNOWLEDGE GRAPH</Text>
         <Text style={styles.neo4jDesc}>
-          Modeled as Chained Time-Series events and Entity-Alias resolution to detect silent price creep and cross-account duplicates.
+          {auraSyncResult?.threats
+            ? `Active AuraDB sync complete! Discovered ${auraSyncResult.threats.stealthHikes.length} silent price creeps and ${auraSyncResult.threats.duplicateSubs.length} cross-account duplicate subscriptions directly via Cypher.`
+            : 'Modeled as Chained Time-Series events and Entity-Alias resolution to detect silent price creep and cross-account duplicates.'}
         </Text>
-        <TouchableOpacity style={styles.neo4jButton} onPress={() => setIsCypherModalOpen(true)}>
-          <Text style={styles.neo4jButtonText}>🕸️ VIEW GRAPH CYPHER SPECIFICATION</Text>
-        </TouchableOpacity>
+        
+        <View style={styles.neo4jBtnGroup}>
+          <TouchableOpacity
+            style={styles.neo4jButtonPrimary}
+            onPress={() => setIsAuraModalOpen(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.neo4jButtonPrimaryText}>⚡ LIVE SYNC & THREAT AUDIT (AURA)</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.neo4jButtonSecondary}
+            onPress={() => setIsCypherModalOpen(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.neo4jButtonSecondaryText}>📜 VIEW CYPHER STATEMENTS & SCHEMA</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Cancellation Runbook Modal */}
@@ -249,6 +266,14 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ onAskAI }) =
       <CypherModal
         visible={isCypherModalOpen}
         onClose={() => setIsCypherModalOpen(false)}
+      />
+
+      {/* Neo4j Aura Live Synchronizer Modal */}
+      <Neo4jAuraSyncModal
+        visible={isAuraModalOpen}
+        mandates={mandates}
+        onClose={() => setIsAuraModalOpen(false)}
+        onSyncComplete={(res) => setAuraSyncResult(res)}
       />
     </View>
   );
@@ -413,13 +438,16 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   neo4jBadge: {
-    backgroundColor: '#00E575',
+    backgroundColor: '#FFE600',
     color: '#000',
     fontSize: 8,
     fontFamily: BRUTALIST.fontMono,
     fontWeight: '900',
     paddingHorizontal: 6,
     paddingVertical: 2,
+  },
+  neo4jBadgeLive: {
+    backgroundColor: '#00E575',
   },
   neo4jStatus: {
     color: '#00E575',
@@ -439,18 +467,36 @@ const styles = StyleSheet.create({
     fontFamily: BRUTALIST.fontMono,
     color: '#CCC',
     lineHeight: 13,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  neo4jButton: {
-    backgroundColor: '#00E575',
+  neo4jBtnGroup: {
+    gap: 8,
+  },
+  neo4jButtonPrimary: {
+    backgroundColor: '#FFE600',
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#000',
+    ...BRUTALIST.shadowSm,
+  },
+  neo4jButtonPrimaryText: {
+    color: '#000',
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontMono,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  neo4jButtonSecondary: {
+    backgroundColor: '#FFFFFF',
     paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#000',
   },
-  neo4jButtonText: {
+  neo4jButtonSecondaryText: {
     color: '#000',
-    fontSize: 9.5,
+    fontSize: 9,
     fontFamily: BRUTALIST.fontMono,
     fontWeight: '900',
     letterSpacing: 0.5,
