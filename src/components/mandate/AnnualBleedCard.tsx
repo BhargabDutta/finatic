@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { MandateRadarStats } from '../../types/mandate';
@@ -23,7 +24,7 @@ export const AnnualBleedCard: React.FC<AnnualBleedCardProps> = ({
     <View style={styles.container}>
       <View style={styles.topRow}>
         <View style={styles.tag}>
-          <Text style={styles.tagText}>SUBSCRIPTION INTELLIGENCE</Text>
+          <Text style={styles.tagText}>RECURRING OUTFLOW</Text>
         </View>
         <TouchableOpacity
           style={[
@@ -35,12 +36,18 @@ export const AnnualBleedCard: React.FC<AnnualBleedCardProps> = ({
           disabled={isAuditing}
           activeOpacity={0.8}
         >
+          <Ionicons
+            name={isAuraSynced ? 'git-network' : 'git-network-outline'}
+            size={12}
+            color={isAuraSynced ? '#10B981' : '#FFFFFF'}
+            style={{ marginRight: 4 }}
+          />
           <Text style={[styles.auditButtonText, isAuraSynced && styles.auditButtonTextSynced]}>
             {isAuditing
               ? 'AUDITING...'
               : isAuraSynced
-              ? `🟢 NEO4J AURA (${auraLatency || 38}ms)`
-              : '⚡ SYNC NEO4J GRAPH'}
+              ? `NEO4J AURA (${auraLatency || 38}ms)`
+              : 'SYNC NEO4J GRAPH'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -56,7 +63,7 @@ export const AnnualBleedCard: React.FC<AnnualBleedCardProps> = ({
 
       <View style={styles.monthlyRow}>
         <Text style={styles.monthlyText}>
-          Draining <Text style={styles.monthlyBold}>₹{stats.totalMonthlyBleed.toLocaleString('en-IN')}</Text> every month across <Text style={styles.monthlyBold}>{stats.totalMandates} commitments</Text>
+          ₹{stats.totalMonthlyBleed.toLocaleString('en-IN')}/mo across {stats.totalMandates} commitments
         </Text>
       </View>
 
@@ -65,32 +72,38 @@ export const AnnualBleedCard: React.FC<AnnualBleedCardProps> = ({
         {stats.threatsCount > 0 ? (
           <>
             <View style={[styles.badge, styles.badgeThreat]}>
-              <Text style={styles.badgeTextThreat}>🚨 {stats.threatsCount} Threats Flagged</Text>
+              <Ionicons name="warning-outline" size={11} color="#EF4444" style={{ marginRight: 4 }} />
+              <Text style={styles.badgeTextThreat}>{stats.threatsCount} Threats Flagged</Text>
             </View>
             {stats.priceCreepsCount > 0 && (
               <View style={[styles.badge, styles.badgeHike]}>
-                <Text style={styles.badgeTextMuted}>📈 {stats.priceCreepsCount} Price Creep</Text>
+                <Ionicons name="trending-up-outline" size={11} color="#374151" style={{ marginRight: 4 }} />
+                <Text style={styles.badgeTextMuted}>{stats.priceCreepsCount} Price Creep</Text>
               </View>
             )}
             {stats.trialTrapsCount > 0 && (
               <View style={[styles.badge, styles.badgeTrap]}>
-                <Text style={styles.badgeTextMuted}>⚠️ {stats.trialTrapsCount} Trial Trap</Text>
+                <Ionicons name="alert-circle-outline" size={11} color="#374151" style={{ marginRight: 4 }} />
+                <Text style={styles.badgeTextMuted}>{stats.trialTrapsCount} Trial Trap</Text>
               </View>
             )}
             {stats.doubleSubscriptionsCount > 0 && (
               <View style={[styles.badge, styles.badgeDup]}>
-                <Text style={styles.badgeTextMuted}>🔄 {stats.doubleSubscriptionsCount} Duplicate</Text>
+                <Ionicons name="copy-outline" size={11} color="#374151" style={{ marginRight: 4 }} />
+                <Text style={styles.badgeTextMuted}>{stats.doubleSubscriptionsCount} Duplicate</Text>
               </View>
             )}
             {stats.zombieChargesCount > 0 && (
               <View style={[styles.badge, styles.badgeZombie]}>
-                <Text style={styles.badgeTextMuted}>🧟 {stats.zombieChargesCount} Zombie</Text>
+                <Ionicons name="time-outline" size={11} color="#374151" style={{ marginRight: 4 }} />
+                <Text style={styles.badgeTextMuted}>{stats.zombieChargesCount} Inactive</Text>
               </View>
             )}
           </>
         ) : (
           <View style={[styles.badge, styles.badgeClean]}>
-            <Text style={styles.badgeTextClean}>✓ Zero Hidden Threats Detected</Text>
+            <Ionicons name="shield-checkmark-outline" size={11} color="#059669" style={{ marginRight: 4 }} />
+            <Text style={styles.badgeTextClean}>Zero Hidden Threats Detected</Text>
           </View>
         )}
       </View>
@@ -103,57 +116,60 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: BRUTALIST.borderWidth,
     borderColor: COLORS.ink,
-    padding: 16,
-    marginBottom: 16,
+    padding: 14,
+    marginBottom: 10,
     ...BRUTALIST.shadowDefault,
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   tag: {
     backgroundColor: COLORS.gray,
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 2.5,
     borderWidth: 1,
     borderColor: COLORS.faintBorder,
   },
   tagText: {
-    color: COLORS.ink,
-    fontSize: 9.5,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 9,
+    color: COLORS.ink,
     letterSpacing: 0.5,
   },
   auditButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.ink,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1.5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
     borderColor: COLORS.ink,
   },
   auditButtonSynced: {
-    backgroundColor: '#DCFCE7',
-    borderColor: '#166534',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#10B981',
   },
   auditButtonDisabled: {
     opacity: 0.6,
   },
   auditButtonText: {
     color: '#FFFFFF',
-    fontSize: 10,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 9.5,
     letterSpacing: 0.3,
   },
   auditButtonTextSynced: {
-    color: '#166534',
+    color: '#065F46',
   },
   titleLabel: {
-    fontSize: 11,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 10,
     color: COLORS.mutedText,
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
+    marginTop: 2,
   },
   amountRow: {
     flexDirection: 'row',
@@ -161,88 +177,85 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   currencySymbol: {
-    fontSize: 22,
     fontFamily: BRUTALIST.fontMono,
-    fontWeight: '700',
+    fontSize: 22,
+    fontWeight: '900',
     color: COLORS.ink,
     marginRight: 2,
   },
   annualAmount: {
-    fontSize: 34,
     fontFamily: BRUTALIST.fontMono,
+    fontSize: 32,
     fontWeight: '900',
     color: COLORS.ink,
-    letterSpacing: -1,
+    letterSpacing: -0.5,
   },
   perYearText: {
+    fontFamily: BRUTALIST.fontSans,
     fontSize: 13,
-    fontFamily: BRUTALIST.fontSansMedium,
     color: COLORS.mutedText,
     marginLeft: 6,
   },
   monthlyRow: {
-    borderTopWidth: 1,
-    borderColor: COLORS.faintBorder,
-    paddingTop: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   monthlyText: {
-    fontSize: 12,
     fontFamily: BRUTALIST.fontSans,
-    color: COLORS.ink,
-    lineHeight: 16,
-  },
-  monthlyBold: {
-    fontFamily: BRUTALIST.fontSansBold,
-    color: COLORS.ink,
+    fontSize: 12,
+    color: '#4B5563',
   },
   badgesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.faintBorder,
   },
   badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderWidth: 1.5,
+    borderWidth: 1,
   },
   badgeThreat: {
     backgroundColor: '#FEF2F2',
-    borderColor: '#EF4444',
+    borderColor: '#FCA5A5',
   },
   badgeHike: {
-    backgroundColor: '#FFFBEB',
-    borderColor: '#F59E0B',
+    backgroundColor: '#F9FAFB',
+    borderColor: '#E5E7EB',
   },
   badgeTrap: {
-    backgroundColor: '#F5F3FF',
-    borderColor: '#8B5CF6',
+    backgroundColor: '#F9FAFB',
+    borderColor: '#E5E7EB',
   },
   badgeDup: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
+    backgroundColor: '#F9FAFB',
+    borderColor: '#E5E7EB',
   },
   badgeZombie: {
-    backgroundColor: '#F3F4F6',
-    borderColor: '#4B5563',
+    backgroundColor: '#F9FAFB',
+    borderColor: '#E5E7EB',
   },
   badgeClean: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#10B981',
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
   },
   badgeTextThreat: {
-    color: '#DC2626',
-    fontSize: 10,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 10,
+    color: '#DC2626',
   },
   badgeTextMuted: {
-    color: COLORS.ink,
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontSansMedium,
+    fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 10,
+    color: '#374151',
   },
   badgeTextClean: {
-    color: '#15803D',
-    fontSize: 10,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 10,
+    color: '#059669',
   },
 });

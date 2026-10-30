@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { Mandate } from '../../types/mandate';
@@ -107,9 +108,15 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
                 onPress={() => setShowGhostingNotice(prev => !prev)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.ghostingTitle}>
-                  {showGhostingNotice ? '▼' : '►'} WHAT IF THE MERCHANT DOES NOT RESPOND?
-                </Text>
+                <View style={styles.ghostingTitleRow}>
+                  <Ionicons
+                    name={showGhostingNotice ? 'chevron-down' : 'chevron-forward'}
+                    size={14}
+                    color="#111827"
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text style={styles.ghostingTitle}>WHAT IF THE MERCHANT DOES NOT RESPOND?</Text>
+                </View>
                 <Text style={styles.ghostingTag}>LEGAL ESCALATION</Text>
               </TouchableOpacity>
 
@@ -129,7 +136,8 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
                   </View>
 
                   <TouchableOpacity style={styles.copyButton} onPress={copyNotice}>
-                    <Text style={styles.copyButtonText}>📋 COPY LEGAL NOTICE</Text>
+                    <Ionicons name="copy-outline" size={13} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.copyButtonText}>COPY LEGAL NOTICE</Text>
                   </TouchableOpacity>
 
                   <View style={styles.ombudsmanBox}>
@@ -182,7 +190,7 @@ const styles = StyleSheet.create({
   },
   headerBadge: {
     backgroundColor: COLORS.black,
-    color: COLORS.yellow,
+    color: '#FFFFFF',
     fontSize: 8.5,
     fontFamily: BRUTALIST.fontMono,
     fontWeight: '900',
@@ -193,8 +201,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
     color: COLORS.black,
     textTransform: 'uppercase',
   },
@@ -207,16 +214,15 @@ const styles = StyleSheet.create({
   closeButton: {
     width: 32,
     height: 32,
-    backgroundColor: COLORS.yellow,
-    borderWidth: 2,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1.5,
     borderColor: COLORS.black,
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeButtonText: {
     fontSize: 16,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
     color: COLORS.black,
   },
   body: {
@@ -313,30 +319,33 @@ const styles = StyleSheet.create({
   },
   ghostingSection: {
     marginTop: 12,
-    borderWidth: 2,
-    borderColor: '#FF3366',
-    backgroundColor: '#FFF5F7',
+    borderWidth: 1.5,
+    borderColor: COLORS.ink,
+    backgroundColor: '#F9FAFB',
   },
   ghostingHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#FF3366',
+    backgroundColor: COLORS.ink,
+  },
+  ghostingTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   ghostingTitle: {
     fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
     color: '#FFF',
     flex: 1,
   },
   ghostingTag: {
-    backgroundColor: '#000',
+    backgroundColor: '#374151',
     color: '#FFF',
     fontSize: 7.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
     paddingHorizontal: 5,
     paddingVertical: 2,
   },
@@ -344,43 +353,44 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   ghostingIntro: {
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#333',
-    lineHeight: 13,
+    fontSize: 10.5,
+    fontFamily: BRUTALIST.fontSans,
+    color: '#374151',
+    lineHeight: 15,
     marginBottom: 8,
   },
   letterBox: {
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#000',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
     padding: 10,
     marginBottom: 10,
   },
   letterSubject: {
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: '#000',
+    fontSize: 10.5,
+    fontFamily: BRUTALIST.fontSansBold,
+    color: '#111827',
     marginBottom: 6,
   },
   letterText: {
-    fontSize: 8.5,
+    fontSize: 10,
     fontFamily: BRUTALIST.fontMono,
-    color: '#222',
-    lineHeight: 13,
+    color: '#374151',
+    lineHeight: 14,
   },
   copyButton: {
-    backgroundColor: '#000',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: COLORS.ink,
     paddingVertical: 8,
     alignItems: 'center',
     marginBottom: 10,
   },
   copyButtonText: {
-    color: COLORS.yellow,
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontSansBold,
+    letterSpacing: 0.3,
   },
   ombudsmanBox: {
     borderTopWidth: 1,

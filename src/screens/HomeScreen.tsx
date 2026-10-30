@@ -16,7 +16,6 @@ import {
   getStoredSMSMessages,
   getLastScanTimestamp,
   computeScanStats,
-  addSMSMessage,
   resetToDefaultMockData,
 } from '../services/smsStorage';
 import {
@@ -33,7 +32,6 @@ import {
 // Brutalist Components
 import { BrutalistHeader } from '../components/brutalist/BrutalistHeader';
 import { BrutalistTicker } from '../components/brutalist/BrutalistTicker';
-import { BrutalistButton } from '../components/brutalist/BrutalistButton';
 import { Ionicons } from '@expo/vector-icons';
 import { ScanStatusCard } from '../components/dashboard/ScanStatusCard';
 import { FinancialSummaryCard } from '../components/dashboard/FinancialSummaryCard';
@@ -43,7 +41,6 @@ import { UrgentAlertsCard } from '../components/dashboard/UrgentAlertsCard';
 import { SMSFilterBar } from '../components/sms/SMSFilterBar';
 import { SMSCard } from '../components/sms/SMSCard';
 import { SMSDetailModal } from '../components/sms/SMSDetailModal';
-import { TestSMSModal } from '../components/devtools/TestSMSModal';
 import { MandateRadarView } from '../components/mandate/MandateRadarView';
 import { ChatScreenView } from '../components/chat/ChatScreenView';
 
@@ -65,7 +62,6 @@ export const HomeScreen: React.FC = () => {
   // Modals
   const [selectedMessage, setSelectedMessage] = useState<SMSMessage | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-  const [isSimulatorOpen, setIsSimulatorOpen] = useState<boolean>(false);
 
   // Refresh message state and stats
   const refreshState = useCallback((msgs: SMSMessage[], scanTime: number) => {
@@ -144,14 +140,10 @@ export const HomeScreen: React.FC = () => {
       executeScan(false);
     } else if (res.reason === 'EXPO_GO') {
       Alert.alert(
-        '📱 Expo Go SMS Sandbox',
-        'Google Play Store strictly prohibits the Expo Go client app from declaring the Android READ_SMS permission.\n\n' +
-        '• In Expo Go: Finatic operates in Auto-Payment Simulator Mode with authentic Indian bank mandate data.\n\n' +
-        '• For Real SMS: Install the standalone "finatic.apk" generated in your project folder, which has full native SMS permissions enabled.',
-        [
-          { text: 'Open SMS Simulator', onPress: () => setIsSimulatorOpen(true) },
-          { text: 'Got It', style: 'cancel' }
-        ]
+        'Expo Go SMS Sandbox',
+        'Google Play Store restricts the Expo Go client app from reading SMS directly.\n\n' +
+        '• In Expo Go: Finatic operates with sample bank mandate data.\n\n' +
+        '• For Live Device SMS: Install the standalone "finatic.apk" generated in your project folder, which has native SMS permissions enabled.'
       );
     } else {
       Alert.alert(
@@ -164,11 +156,6 @@ export const HomeScreen: React.FC = () => {
   const handleOpenDetail = (msg: SMSMessage) => {
     setSelectedMessage(msg);
     setIsDetailModalOpen(true);
-  };
-
-  const handleAddCustomMessage = async (newMsg: SMSMessage) => {
-    const updated = await addSMSMessage(newMsg);
-    refreshState(updated, Date.now());
   };
 
   const handleResetData = async () => {
@@ -231,10 +218,7 @@ export const HomeScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Brutalist App Header */}
-      <BrutalistHeader
-        onOpenSimulator={() => setIsSimulatorOpen(true)}
-        onResetData={handleResetData}
-      />
+      <BrutalistHeader onResetData={handleResetData} />
 
       {/* Clean Status Banner */}
       <BrutalistTicker
@@ -254,8 +238,14 @@ export const HomeScreen: React.FC = () => {
           onPress={() => setActiveTab('MANDATE_RADAR')}
           activeOpacity={0.8}
         >
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={14}
+            color={activeTab === 'MANDATE_RADAR' ? '#FFFFFF' : '#111827'}
+            style={{ marginRight: 6 }}
+          />
           <Text style={[styles.tabButtonText, activeTab === 'MANDATE_RADAR' && styles.tabButtonTextActive]}>
-            🎯 Auto-Debit
+            Auto-Debit
           </Text>
         </TouchableOpacity>
 
@@ -264,8 +254,14 @@ export const HomeScreen: React.FC = () => {
           onPress={() => setActiveTab('AI_CHATBOT')}
           activeOpacity={0.8}
         >
+          <Ionicons
+            name="sparkles-outline"
+            size={14}
+            color={activeTab === 'AI_CHATBOT' ? '#FFFFFF' : '#111827'}
+            style={{ marginRight: 6 }}
+          />
           <Text style={[styles.tabButtonText, activeTab === 'AI_CHATBOT' && styles.tabButtonTextActive]}>
-            🤖 SubClear AI
+            SubClear AI
           </Text>
         </TouchableOpacity>
 
@@ -274,8 +270,14 @@ export const HomeScreen: React.FC = () => {
           onPress={() => setActiveTab('SMS_FEED')}
           activeOpacity={0.8}
         >
+          <Ionicons
+            name="mail-outline"
+            size={14}
+            color={activeTab === 'SMS_FEED' ? '#FFFFFF' : '#111827'}
+            style={{ marginRight: 6 }}
+          />
           <Text style={[styles.tabButtonText, activeTab === 'SMS_FEED' && styles.tabButtonTextActive]}>
-            ⚡ SMS Feed
+            SMS Feed
           </Text>
         </TouchableOpacity>
       </View>
@@ -312,7 +314,6 @@ export const HomeScreen: React.FC = () => {
               isNativeAndroid={isNativeAndroid}
               hasPermission={hasPermission}
               onRequestPermission={handleRequestPermission}
-              onOpenSimulator={() => setIsSimulatorOpen(true)}
             />
 
             {/* Expo Go Sandbox Notice Banner */}
@@ -320,19 +321,11 @@ export const HomeScreen: React.FC = () => {
               <View style={styles.expoNoticeBanner}>
                 <View style={styles.expoNoticeHeader}>
                   <Ionicons name="information-circle" size={16} color={COLORS.ink} />
-                  <Text style={styles.expoNoticeTitle}>EXPO GO: DEMO & SIMULATOR MODE</Text>
+                  <Text style={styles.expoNoticeTitle}>EXPO GO: DEMO MODE</Text>
                 </View>
                 <Text style={styles.expoNoticeText}>
                   Google Play restricts the Expo Go client app from accessing real device SMS. To scan your phone&apos;s real SMS inbox, install the standalone <Text style={{ fontWeight: '900' }}>finatic.apk</Text>.
                 </Text>
-                <View style={styles.expoNoticeActions}>
-                  <BrutalistButton
-                    title="🧪 TEST / PASTE REAL SMS"
-                    onPress={() => setIsSimulatorOpen(true)}
-                    variant="yellow"
-                    size="sm"
-                  />
-                </View>
               </View>
             )}
 
@@ -408,14 +401,6 @@ export const HomeScreen: React.FC = () => {
         visible={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
       />
-
-      {/* Simulator & Custom SMS Modal */}
-      <TestSMSModal
-        visible={isSimulatorOpen}
-        onClose={() => setIsSimulatorOpen(false)}
-        onAddMessage={handleAddCustomMessage}
-        onResetData={handleResetData}
-      />
     </SafeAreaView>
   );
 };
@@ -435,11 +420,14 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
+    flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: COLORS.ink,
     paddingVertical: 9,
+    paddingHorizontal: 4,
     alignItems: 'center',
+    justifyContent: 'center',
     ...BRUTALIST.shadowSm,
   },
   tabButtonActive: {

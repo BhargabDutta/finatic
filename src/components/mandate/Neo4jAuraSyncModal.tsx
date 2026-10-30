@@ -270,7 +270,10 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
                       {isTesting ? (
                         <ActivityIndicator size="small" color="#FFF" />
                       ) : (
-                        <Text style={[styles.smallBtnText, styles.testBtnText]}>🧪 TEST PING</Text>
+                        <>
+                          <Ionicons name="pulse-outline" size={12} color="#FFF" style={{ marginRight: 4 }} />
+                          <Text style={[styles.smallBtnText, styles.testBtnText]}>TEST PING</Text>
+                        </>
                       )}
                     </TouchableOpacity>
 
@@ -278,14 +281,16 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
                       style={[styles.smallBtn, styles.saveBtn]}
                       onPress={handleSaveCredentials}
                     >
-                      <Text style={styles.smallBtnText}>💾 SAVE</Text>
+                      <Ionicons name="bookmark-outline" size={12} color="#111827" style={{ marginRight: 4 }} />
+                      <Text style={styles.smallBtnText}>SAVE</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                       style={[styles.smallBtn, styles.demoBtn]}
                       onPress={handlePreFillPlaceholder}
                     >
-                      <Text style={styles.smallBtnText}>✨ PRESET</Text>
+                      <Ionicons name="flash-outline" size={12} color="#111827" style={{ marginRight: 4 }} />
+                      <Text style={styles.smallBtnText}>PRESET</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -340,15 +345,18 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
               >
                 {isSyncing ? (
                   <View style={styles.loadingRow}>
-                    <ActivityIndicator size="small" color="#000" />
+                    <ActivityIndicator size="small" color="#FFF" />
                     <Text style={styles.primarySyncBtnText}>
                       COMMITTING TRANSACTIONS TO AURA...
                     </Text>
                   </View>
                 ) : (
-                  <Text style={styles.primarySyncBtnText}>
-                    ⚡ SYNC GRAPH & RUN LIVE AURA AUDIT
-                  </Text>
+                  <View style={styles.loadingRow}>
+                    <Ionicons name="git-network-outline" size={14} color="#FFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.primarySyncBtnText}>
+                      SYNC GRAPH & RUN AURA AUDIT
+                    </Text>
+                  </View>
                 )}
               </TouchableOpacity>
             </View>
@@ -358,14 +366,14 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
               <View style={styles.resultsCard}>
                 <View style={styles.resultsHeader}>
                   <View>
-                    <Text style={styles.resultsBadge}>
-                      {syncResult.success ? '🟢 AURA DB: AUDIT COMPLETE' : '🔴 AURA DB: ERROR'}
+                    <Text style={[styles.resultsBadge, !syncResult.success && { backgroundColor: '#FEE2E2', color: '#DC2626' }]}>
+                      {syncResult.success ? 'AURA DB: AUDIT COMPLETE' : 'AURA DB: ERROR'}
                     </Text>
                     <Text style={styles.resultsTitle}>LIVE GRAPH INTELLIGENCE</Text>
                   </View>
                   {syncResult.latencyMs > 0 && (
                     <View style={styles.latencyPill}>
-                      <Text style={styles.latencyPillText}>⚡ {syncResult.latencyMs}ms</Text>
+                      <Text style={styles.latencyPillText}>{syncResult.latencyMs}ms</Text>
                     </View>
                   )}
                 </View>
@@ -397,9 +405,12 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
                 {syncResult.threats?.stealthHikes &&
                   syncResult.threats.stealthHikes.length > 0 && (
                     <View style={styles.threatSection}>
-                      <Text style={styles.threatSectionTitle}>
-                        📈 STEALTH PRICE CREEPS DISCOVERED BY GRAPH:
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                        <Ionicons name="trending-up-outline" size={13} color="#DC2626" style={{ marginRight: 5 }} />
+                        <Text style={styles.threatSectionTitle}>
+                          PRICE CREEP DETECTED BY GRAPH:
+                        </Text>
+                      </View>
                       {syncResult.threats.stealthHikes.map((hike, idx) => (
                         <View key={idx} style={styles.threatItemCard}>
                           <View style={styles.threatItemTop}>
@@ -419,9 +430,12 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
                 {syncResult.threats?.duplicateSubs &&
                   syncResult.threats.duplicateSubs.length > 0 && (
                     <View style={styles.threatSection}>
-                      <Text style={styles.threatSectionTitle}>
-                        🔄 MULTI-ACCOUNT DUPLICATES DISCOVERED BY GRAPH:
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                        <Ionicons name="copy-outline" size={13} color="#1D4ED8" style={{ marginRight: 5 }} />
+                        <Text style={styles.threatSectionTitle}>
+                          MULTI-ACCOUNT DUPLICATES DETECTED:
+                        </Text>
+                      </View>
                       {syncResult.threats.duplicateSubs.map((dup, idx) => (
                         <View key={idx} style={styles.threatItemCard}>
                           <View style={styles.threatItemTop}>
@@ -442,24 +456,32 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
 
                 {/* Zero Knowledge Privacy Guarantee */}
                 <View style={styles.privacyNotice}>
-                  <Text style={styles.privacyTitle}>🔒 ZERO-KNOWLEDGE PROOF:</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 3 }}>
+                    <Ionicons name="shield-checkmark-outline" size={13} color="#059669" style={{ marginRight: 5 }} />
+                    <Text style={styles.privacyTitle}>ZERO-KNOWLEDGE GUARANTEE:</Text>
+                  </View>
                   <Text style={styles.privacyText}>
-                    Neo4j Aura received pseudonymized nodes and masked billing amounts. Zero raw SMS
-                    text, phone numbers, or account details were transmitted.
+                    Neo4j Aura receives only pseudonymized tokens and masked billing figures. No raw SMS text, phone numbers, or account details leave your device.
                   </Text>
                 </View>
 
-                {/* Inspect Raw Transaction Response (Judges Demo) */}
+                {/* Inspect Raw Transaction Response */}
                 {syncResult.rawResponse && (
                   <View style={styles.rawJsonSection}>
                     <TouchableOpacity
                       style={styles.rawJsonToggle}
                       onPress={() => setShowRawJson(!showRawJson)}
                     >
+                      <Ionicons
+                        name={showRawJson ? 'chevron-down' : 'chevron-forward'}
+                        size={12}
+                        color="#111827"
+                        style={{ marginRight: 4 }}
+                      />
                       <Text style={styles.rawJsonToggleText}>
                         {showRawJson
-                          ? '▼ HIDE RAW AURA HTTP PAYLOAD'
-                          : '▶ INSPECT RAW AURA TRANSACTION PAYLOAD (FOR JUDGES)'}
+                          ? 'HIDE RAW TRANSACTION PAYLOAD'
+                          : 'INSPECT RAW AURA TRANSACTION PAYLOAD'}
                       </Text>
                     </TouchableOpacity>
 
@@ -477,13 +499,13 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
 
             {/* Quick Setup Instructions */}
             <View style={styles.infoCard}>
-              <Text style={styles.infoTitle}>⚡ HOW NEO4J AURA WORKS WITH FINATIC:</Text>
+              <Text style={styles.infoTitle}>HOW NEO4J AURA OPERATES WITH FINATIC:</Text>
               <Text style={styles.infoStep}>
                 1. <Text style={styles.bold}>Local SMS Parser</Text> runs on-device, categorizing
-                auto-debit mandates and masking all PII.
+                auto-debit mandates and masking all personal information.
               </Text>
               <Text style={styles.infoStep}>
-                2. <Text style={styles.bold}>Aura Gateway</Text> sends parameterized Cypher
+                2. <Text style={styles.bold}>Aura Gateway</Text> sends structured Cypher
                 statements over Neo4j&apos;s HTTPS transactional endpoint.
               </Text>
               <Text style={styles.infoStep}>

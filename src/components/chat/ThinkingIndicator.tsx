@@ -5,8 +5,8 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ThinkingPhase } from '../../types/chat';
-import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 
 interface ThinkingIndicatorProps {
@@ -20,7 +20,6 @@ export const ThinkingIndicator: React.FC<ThinkingIndicatorProps> = ({
   elapsedSeconds,
   isWarmingUp,
 }) => {
-  // Stable Animated values using lazy state initialization
   const [pulse1] = useState(() => new Animated.Value(0.3));
   const [pulse2] = useState(() => new Animated.Value(0.3));
   const [pulse3] = useState(() => new Animated.Value(0.3));
@@ -59,38 +58,41 @@ export const ThinkingIndicator: React.FC<ThinkingIndicatorProps> = ({
     };
   }, [pulse1, pulse2, pulse3]);
 
-  const getPhaseDescription = (p: ThinkingPhase): string => {
+  const getPhaseInfo = (p: ThinkingPhase): { icon: 'search-outline' | 'git-network-outline' | 'calculator-outline' | 'sparkles-outline' | 'time-outline'; text: string } => {
     switch (p) {
       case 'ANALYZING_QUERY':
-        return '🔍 Parsing query & extracting transaction descriptors...';
+        return { icon: 'search-outline', text: 'Parsing query and extracting bank descriptors...' };
       case 'SCANNING_TAXONOMY':
-        return '🕸️ Consulting merchant entity taxonomy & Neo4j graph...';
+        return { icon: 'git-network-outline', text: 'Consulting merchant graph taxonomy...' };
       case 'EVALUATING_MANDATES':
-        return '⚡ Calculating price creep & cancellation runbooks...';
+        return { icon: 'calculator-outline', text: 'Analyzing price trend and cancellation runbooks...' };
       case 'SYNTHESIZING_RESPONSE':
-        return '🤖 Formulating actionable financial advisory...';
+        return { icon: 'sparkles-outline', text: 'Formulating structured advisory summary...' };
       case 'WARMING_SERVER':
-        return '⏳ Render cloud instance is waking from standby (free tier)...';
+        return { icon: 'time-outline', text: 'AI cloud instance is waking from standby...' };
       default:
-        return '⚡ Processing financial intelligence...';
+        return { icon: 'sparkles-outline', text: 'Processing intelligence...' };
     }
   };
+
+  const phaseInfo = getPhaseInfo(phase);
 
   return (
     <View style={styles.container}>
       <View style={styles.thinkingCard}>
-        {/* Header with status pill and elapsed seconds */}
+        {/* Header */}
         <View style={styles.cardHeader}>
           <View style={styles.statusPill}>
             <View style={styles.pulseDot} />
-            <Text style={styles.statusPillText}>SUBCLEAR AI // THINKING</Text>
+            <Text style={styles.statusPillText}>SUBCLEAR AI // ACTIVE</Text>
           </View>
-          <Text style={styles.timerText}>{elapsedSeconds}s ELAPSED</Text>
+          <Text style={styles.timerText}>{elapsedSeconds}s</Text>
         </View>
 
         {/* Dynamic Phase Description */}
         <View style={styles.phaseRow}>
-          <Text style={styles.phaseText}>{getPhaseDescription(phase)}</Text>
+          <Ionicons name={phaseInfo.icon} size={14} color="#111827" style={{ marginRight: 6 }} />
+          <Text style={styles.phaseText}>{phaseInfo.text}</Text>
         </View>
 
         {/* Animated Three-Dot Wave */}
@@ -99,16 +101,6 @@ export const ThinkingIndicator: React.FC<ThinkingIndicatorProps> = ({
           <Animated.View style={[styles.dot, { opacity: pulse2 }]} />
           <Animated.View style={[styles.dot, { opacity: pulse3 }]} />
         </View>
-
-        {/* Server Cold-Start Notice */}
-        {isWarmingUp && (
-          <View style={styles.warmingBanner}>
-            <Text style={styles.warmingIcon}>⚡</Text>
-            <Text style={styles.warmingText}>
-              Render free tier spins down on idle. Please hold on ~20-30s while the AI container boots up!
-            </Text>
-          </View>
-        )}
       </View>
     </View>
   );
@@ -116,91 +108,71 @@ export const ThinkingIndicator: React.FC<ThinkingIndicatorProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 10,
     paddingHorizontal: 12,
-    alignItems: 'flex-start',
+    marginVertical: 6,
   },
   thinkingCard: {
-    backgroundColor: '#FFFDEB',
-    borderWidth: BRUTALIST.borderWidth,
-    borderColor: COLORS.black,
-    padding: 14,
-    maxWidth: '94%',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#111827',
+    padding: 12,
+    maxWidth: '85%',
     ...BRUTALIST.shadowSm,
   },
   cardHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
-    gap: 12,
+    alignItems: 'center',
+    marginBottom: 6,
   },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.yellow,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderWidth: 1.5,
-    borderColor: COLORS.black,
-    gap: 6,
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    gap: 5,
   },
   pulseDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.coral,
+    backgroundColor: '#10B981',
   },
   statusPillText: {
-    fontFamily: BRUTALIST.fontMono,
-    fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.black,
+    fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 9,
+    color: '#111827',
     letterSpacing: 0.5,
   },
   timerText: {
     fontFamily: BRUTALIST.fontMono,
-    fontSize: 11,
+    fontSize: 10,
+    color: '#6B7280',
     fontWeight: '700',
-    color: COLORS.mutedText,
   },
   phaseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 4,
   },
   phaseText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.ink,
-    lineHeight: 18,
+    flex: 1,
+    fontFamily: BRUTALIST.fontSans,
+    fontSize: 11.5,
+    color: '#374151',
+    lineHeight: 16,
   },
   dotsContainer: {
     flexDirection: 'row',
-    gap: 6,
-    marginTop: 8,
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
   },
   dot: {
-    width: 8,
-    height: 8,
-    backgroundColor: COLORS.black,
-  },
-  warmingBanner: {
-    marginTop: 10,
-    padding: 8,
-    backgroundColor: '#FFF2D6',
-    borderWidth: 1,
-    borderColor: COLORS.orange,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  warmingIcon: {
-    fontSize: 14,
-  },
-  warmingText: {
-    flex: 1,
-    fontSize: 11,
-    color: '#8A4B00',
-    fontWeight: '700',
-    lineHeight: 15,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#111827',
   },
 });

@@ -112,7 +112,7 @@ export const ChatScreenView: React.FC<ChatScreenViewProps> = ({
         const errorMessage: ChatMessage = {
           id: `err_${Date.now()}`,
           sender: 'assistant',
-          text: `⚠️ **Unable to complete AI query:** ${err.message || 'Network error'}\n\n*Tip: If the Render server was asleep, please tap RETRY below — the container should be warm now.*`,
+          text: `Unable to complete AI query: ${err.message || 'Network error'}\n\nTip: If the server container was asleep, tap RETRY to reconnect.`,
           timestamp: Date.now(),
           isError: true,
         };
@@ -184,9 +184,9 @@ export const ChatScreenView: React.FC<ChatScreenViewProps> = ({
             <Text style={styles.topBarSubtitle}>
               {isThinking
                 ? isServerWarmingUp
-                  ? '⚡ SERVER WARMING UP (RENDER)...'
-                  : '🤖 ANALYZING TAXONOMY...'
-                : '🟢 ONLINE // READY TO AUDIT'}
+                  ? 'SERVER WARMING UP...'
+                  : 'ANALYZING TAXONOMY...'
+                : 'ONLINE // READY TO AUDIT'}
             </Text>
           </View>
         </View>

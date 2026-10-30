@@ -136,7 +136,7 @@ export const TestSMSModal: React.FC<TestSMSModalProps> = ({
                   icon="flash"
                 />
                 <BrutalistButton
-                  title="⚡ INJECT ALL 5 AUTOPAY PRESETS"
+                  title="INJECT ALL 5 AUTOPAY PRESETS"
                   onPress={handleInjectAllPresets}
                   variant="ink"
                   icon="layers"

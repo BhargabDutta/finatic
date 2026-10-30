@@ -47,8 +47,8 @@ export const SMSCard: React.FC<SMSCardProps> = ({ message, onPress }) => {
   };
 
   const getAmountPrefix = () => {
-    if (parsed.type === 'PRE_DEBIT_ALERT') return '⏳ ';
-    return '⚡ -';
+    if (parsed.type === 'PRE_DEBIT_ALERT') return '';
+    return '-';
   };
 
   return (

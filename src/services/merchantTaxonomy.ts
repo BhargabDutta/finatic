@@ -13,7 +13,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_netflix',
     name: 'Netflix',
     category: 'Entertainment / OTT',
-    icon: '🎬',
+    icon: 'film-outline',
     defaultRail: 'UPI_AUTOPAY',
     patterns: [
       /\b(?:billdesk\*|nach-)?nflx(?:_mum|_in|_autopay)?\b/i,
@@ -26,7 +26,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_amazon_prime',
     name: 'Amazon Prime',
     category: 'E-Commerce & Video',
-    icon: '📦',
+    icon: 'cube-outline',
     defaultRail: 'CARD_SI',
     patterns: [
       /\b(?:ach[-_]cr[-_])?amzn[-_*]prm(?:[-_*]\d+[-_*]blr)?\b/i,
@@ -39,7 +39,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_hotstar',
     name: 'Disney+ Hotstar',
     category: 'Entertainment / OTT',
-    icon: '⭐',
+    icon: 'star-outline',
     defaultRail: 'CARD_SI',
     patterns: [
       /\b(?:si[-_]hdfc[-_]|billdesk\*)?hotstar(?:[-_*]mum)?\b/i,
@@ -52,7 +52,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_spotify',
     name: 'Spotify Premium',
     category: 'Audio Streaming',
-    icon: '🎧',
+    icon: 'musical-notes-outline',
     defaultRail: 'UPI_AUTOPAY',
     patterns: [
       /\b(?:billdesk\*|si-)?spotify(?:[-_*]in)?\b/i,
@@ -64,7 +64,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_canva',
     name: 'Canva Pro',
     category: 'Productivity & Design',
-    icon: '🎨',
+    icon: 'brush-outline',
     defaultRail: 'CARD_SI',
     patterns: [
       /\b(?:ach\*|si-)?canva(?:[-_*]sub|[-_*]monthly|[-_*]trial)?(?:[-_*]blr)?\b/i,
@@ -76,7 +76,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_cultfit',
     name: 'Cult.fit Fitness',
     category: 'Health & Fitness',
-    icon: '🏋️',
+    icon: 'barbell-outline',
     defaultRail: 'NACH',
     patterns: [
       /\b(?:nach[-_]dr[-_]|ach[-_])?cultfit(?:[-_*]blr[-_*]\d+)?\b/i,
@@ -88,7 +88,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_aws',
     name: 'AWS Cloud Services',
     category: 'Cloud Infrastructure',
-    icon: '☁️',
+    icon: 'cloud-outline',
     defaultRail: 'CARD_SI',
     patterns: [
       /\bamzn\s+web\s+services(?:\s+mum)?\b/i,
@@ -100,7 +100,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_jio_fiber',
     name: 'Jio Fiber Broadband',
     category: 'Utilities / Internet',
-    icon: '🌐',
+    icon: 'globe-outline',
     defaultRail: 'UPI_AUTOPAY',
     patterns: [
       /\bjio[-_*]fiber[-_*]autopay\b/i,
@@ -112,7 +112,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_swiggy_one',
     name: 'Swiggy One',
     category: 'Food & Groceries',
-    icon: '🍔',
+    icon: 'restaurant-outline',
     defaultRail: 'CARD_SI',
     patterns: [
       /\b(?:si[-_]hdfc[-_]|ach[-_])?swiggy[-_*]super(?:[-_*]mum)?\b/i,
@@ -124,7 +124,7 @@ export const MERCHANT_TAXONOMY: MerchantEntity[] = [
     id: 'merch_google_one',
     name: 'Google One Storage',
     category: 'Cloud Storage',
-    icon: '💾',
+    icon: 'server-outline',
     defaultRail: 'APP_STORE',
     patterns: [
       /\bgoogle\*storage(?:[-_*]in)?\b/i,
@@ -177,7 +177,7 @@ export function resolveMerchantEntity(rawString: string): {
     id: `merch_${cleanedName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
     name: cleanedName.toUpperCase(),
     category: 'Recurring Subscription',
-    icon: '💳',
+    icon: 'card-outline',
     defaultRail: 'UPI_AUTOPAY',
     patterns: [],
   };

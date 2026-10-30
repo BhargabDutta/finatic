@@ -9,16 +9,16 @@ const REQUEST_TIMEOUT_MS = 60000; // 60s to accommodate Render cold start
 export const INITIAL_WELCOME_MESSAGE: ChatMessage = {
   id: 'msg_welcome',
   sender: 'assistant',
-  text: `Hello! I’m **SubClear AI** — your autonomous Fintech Intelligence Copilot.
+  text: `SubClear AI Copilot Ready
 
-I can help you with:
-• **Decoding Cryptic Descriptors** (e.g. \`BILLDESK*NFLX\`, \`ACH*CANVA*SUB\`)
-• **Spotting Silent Price Creeps** & Stealth Subscriptions
-• **Multi-Rail Cancellation Runbooks** (UPI AutoPay, Card SI, NACH)
-• **Section 25 PSSA Dispute Notices** for merchant ghosting
-• **Annualized Bleed Calculations**
+Fintech Intelligence Services:
+- Decoding Cryptic Descriptors: Resolve bank transaction strings to real merchant entities
+- Price Hike Detection: Identify silent subscription rate increases across billing cycles
+- Cancellation Runbooks: Direct step-by-step procedures for UPI AutoPay, Card SI, and NACH
+- Legal Revocation Notices: Generate Section 25 PSSA dispute templates for non-responsive merchants
+- Annual Cost Audits: Real-time calculation of annualized recurring outflow
 
-Tap any quick prompt below or paste an SMS/descriptor to begin!`,
+Select an audit prompt below or paste an SMS descriptor to begin.`,
   timestamp: Date.now(),
 };
 

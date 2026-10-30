@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { Mandate } from '../../types/mandate';
@@ -14,19 +15,55 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
   const getRailBadgeStyle = () => {
     switch (mandate.paymentRail) {
       case 'UPI_AUTOPAY':
-        return { bg: '#F0FDF4', border: '#16A34A', text: '#15803D' };
+        return { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D' };
       case 'CARD_SI':
-        return { bg: '#FEF2F2', border: '#DC2626', text: '#B91C1C' };
+        return { bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C' };
       case 'NACH':
-        return { bg: '#FFFBEB', border: '#D97706', text: '#B45309' };
+        return { bg: '#FFFBEB', border: '#FDE68A', text: '#B45309' };
       case 'APP_STORE':
-        return { bg: '#F5F3FF', border: '#7C3AED', text: '#6D28D9' };
+        return { bg: '#F5F3FF', border: '#DDD6FE', text: '#6D28D9' };
       default:
-        return { bg: '#F3F4F6', border: '#4B5563', text: '#374151' };
+        return { bg: '#F3F4F6', border: '#E5E7EB', text: '#374151' };
+    }
+  };
+
+  const getThreatInfo = () => {
+    switch (mandate.threatType) {
+      case 'PRICE_CREEP':
+        return {
+          icon: 'trending-up-outline' as const,
+          title: 'SILENT PRICE CREEP DETECTED',
+          style: styles.threatHike,
+          textStyle: styles.threatTextHike,
+        };
+      case 'TRIAL_TRAP':
+        return {
+          icon: 'alert-circle-outline' as const,
+          title: 'FREE TRIAL AMBUSH CONVERTED',
+          style: styles.threatTrap,
+          textStyle: styles.threatTextTrap,
+        };
+      case 'DOUBLE_SUBSCRIPTION':
+        return {
+          icon: 'copy-outline' as const,
+          title: 'CROSS-ACCOUNT DUPLICATE SUB',
+          style: styles.threatDup,
+          textStyle: styles.threatTextDup,
+        };
+      case 'ZOMBIE_CHARGE':
+        return {
+          icon: 'time-outline' as const,
+          title: 'INACTIVE MANDATE DETECTED',
+          style: styles.threatZombie,
+          textStyle: styles.threatTextZombie,
+        };
+      default:
+        return null;
     }
   };
 
   const railStyle = getRailBadgeStyle();
+  const threatInfo = getThreatInfo();
 
   return (
     <View style={styles.card}>
@@ -46,7 +83,6 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
 
       {/* Raw Descriptor Box */}
       <View style={styles.descriptorBox}>
-        <Text style={styles.descriptorLabel}>RAW DESCRIPTOR:</Text>
         <Text style={styles.descriptorText} numberOfLines={1}>
           {mandate.rawDescriptor}
         </Text>
@@ -54,27 +90,19 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
       </View>
 
       {/* Threat Banner (If Flagged) */}
-      {mandate.threatType !== 'NONE' && (
-        <View style={[
-          styles.threatBanner,
-          mandate.threatType === 'PRICE_CREEP' && styles.threatHike,
-          mandate.threatType === 'TRIAL_TRAP' && styles.threatTrap,
-          mandate.threatType === 'DOUBLE_SUBSCRIPTION' && styles.threatDup,
-          mandate.threatType === 'ZOMBIE_CHARGE' && styles.threatZombie,
-        ]}>
-          <Text style={styles.threatTitle}>
-            {mandate.threatType === 'PRICE_CREEP' && '🚨 SILENT PRICE CREEP DETECTED'}
-            {mandate.threatType === 'TRIAL_TRAP' && '⚠️ FREE TRIAL AMBUSH CONVERTED'}
-            {mandate.threatType === 'DOUBLE_SUBSCRIPTION' && '🔄 CROSS-ACCOUNT DUPLICATE SUB'}
-            {mandate.threatType === 'ZOMBIE_CHARGE' && '🧟 ZOMBIE MANDATE DETECTED'}
-          </Text>
+      {threatInfo && (
+        <View style={[styles.threatBanner, threatInfo.style]}>
+          <View style={styles.threatTitleRow}>
+            <Ionicons name={threatInfo.icon} size={13} color={threatInfo.textStyle.color} style={{ marginRight: 5 }} />
+            <Text style={[styles.threatTitle, threatInfo.textStyle]}>{threatInfo.title}</Text>
+          </View>
           {mandate.threatDescription && (
             <Text style={styles.threatDesc}>{mandate.threatDescription}</Text>
           )}
         </View>
       )}
 
-      {/* Amounts and Killswitch Row */}
+      {/* Amounts and Actions Row */}
       <View style={styles.bottomRow}>
         <View style={styles.amountArea}>
           <View style={styles.priceRow}>
@@ -93,7 +121,8 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
               onPress={() => onAskAIPress(mandate)}
               activeOpacity={0.8}
             >
-              <Text style={styles.aiButtonText}>🤖 AI AUDIT</Text>
+              <Ionicons name="sparkles-outline" size={12} color="#111827" style={{ marginRight: 4 }} />
+              <Text style={styles.aiButtonText}>AUDIT</Text>
             </TouchableOpacity>
           )}
 
@@ -102,7 +131,8 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
             onPress={() => onCancelPress(mandate)}
             activeOpacity={0.8}
           >
-            <Text style={styles.killButtonText}>⚡ KILLSWITCH</Text>
+            <Ionicons name="power-outline" size={12} color="#FFFFFF" style={{ marginRight: 4 }} />
+            <Text style={styles.killButtonText}>REVOKE</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -114,16 +144,16 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderWidth: BRUTALIST.borderWidth,
-    borderColor: COLORS.black,
-    padding: 14,
-    marginBottom: 14,
+    borderColor: COLORS.ink,
+    padding: 13,
+    marginBottom: 10,
     ...BRUTALIST.shadowDefault,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   titleArea: {
     flex: 1,
@@ -138,143 +168,145 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: BRUTALIST.fontSans,
     color: COLORS.mutedText,
-    marginTop: 2,
+    marginTop: 1,
   },
   railBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 3,
     borderWidth: 1,
   },
   railText: {
-    fontSize: 9.5,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 9.5,
     letterSpacing: 0.3,
   },
   descriptorBox: {
     backgroundColor: '#F9FAFB',
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    padding: 8,
-    marginBottom: 10,
-  },
-  descriptorLabel: {
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontSansBold,
-    color: '#9CA3AF',
-    letterSpacing: 0.5,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   descriptorText: {
-    fontSize: 11,
     fontFamily: BRUTALIST.fontMono,
-    fontWeight: '700',
-    color: COLORS.ink,
-    marginVertical: 2,
+    fontSize: 10.5,
+    color: '#374151',
+    flex: 1,
+    marginRight: 6,
   },
   accountText: {
+    fontFamily: BRUTALIST.fontMono,
     fontSize: 10,
-    fontFamily: BRUTALIST.fontSans,
     color: COLORS.mutedText,
   },
   threatBanner: {
-    padding: 10,
+    padding: 8,
+    marginBottom: 8,
     borderWidth: 1,
-    marginBottom: 12,
   },
   threatHike: {
-    backgroundColor: '#FFFBEB',
-    borderColor: '#F59E0B',
-    borderLeftWidth: 4,
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
   },
   threatTrap: {
-    backgroundColor: '#FDF4FF',
-    borderColor: '#C026D3',
-    borderLeftWidth: 4,
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
   },
   threatDup: {
     backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
-    borderLeftWidth: 4,
+    borderColor: '#BFDBFE',
   },
   threatZombie: {
     backgroundColor: '#F3F4F6',
-    borderColor: '#6B7280',
-    borderLeftWidth: 4,
+    borderColor: '#E5E7EB',
+  },
+  threatTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   threatTitle: {
-    fontSize: 11,
     fontFamily: BRUTALIST.fontSansBold,
-    color: COLORS.ink,
-    marginBottom: 2,
+    fontSize: 10,
+    letterSpacing: 0.2,
   },
+  threatTextHike: { color: '#DC2626' },
+  threatTextTrap: { color: '#DC2626' },
+  threatTextDup: { color: '#1D4ED8' },
+  threatTextZombie: { color: '#4B5563' },
   threatDesc: {
-    fontSize: 10.5,
     fontFamily: BRUTALIST.fontSans,
-    color: '#4B5563',
-    lineHeight: 14,
+    fontSize: 11,
+    color: '#374151',
+    marginTop: 3,
+    lineHeight: 15,
   },
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderColor: '#F3F4F6',
-    paddingTop: 10,
+    borderTopColor: COLORS.faintBorder,
   },
   amountArea: {
-    flex: 1,
+    justifyContent: 'center',
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
   monthlyAmount: {
-    fontSize: 18,
     fontFamily: BRUTALIST.fontMono,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '900',
     color: COLORS.ink,
   },
   frequencyLabel: {
-    fontSize: 11,
     fontFamily: BRUTALIST.fontSans,
+    fontSize: 11,
     color: COLORS.mutedText,
     marginLeft: 2,
   },
   annualImpact: {
+    fontFamily: BRUTALIST.fontMono,
     fontSize: 10,
-    fontFamily: BRUTALIST.fontSans,
     color: COLORS.mutedText,
-    marginTop: 1,
   },
   actionsGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   aiButton: {
-    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
     borderWidth: 1.5,
     borderColor: COLORS.ink,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    ...BRUTALIST.shadowSm,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
   },
   aiButtonText: {
-    color: COLORS.ink,
-    fontSize: 10,
     fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 10,
+    color: COLORS.ink,
   },
   killButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.ink,
     borderWidth: 1.5,
     borderColor: COLORS.ink,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    ...BRUTALIST.shadowSm,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   killButtonText: {
-    color: '#FFFFFF',
-    fontSize: 10,
     fontFamily: BRUTALIST.fontSansBold,
-    letterSpacing: 0.3,
+    fontSize: 10,
+    color: '#FFFFFF',
   },
 });

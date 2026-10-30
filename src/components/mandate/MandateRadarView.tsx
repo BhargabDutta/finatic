@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { Mandate, MandateRadarStats } from '../../types/mandate';
@@ -124,7 +125,7 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
 
       {/* Search Input */}
       <View style={styles.searchContainer}>
-        <Text style={styles.searchPrefix}>🔍</Text>
+        <Ionicons name="search-outline" size={14} color="#9CA3AF" style={{ marginRight: 6 }} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search merchant, descriptor, or account..."
@@ -156,7 +157,7 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
           onPress={() => setSelectedFilter('THREATS')}
         >
           <Text style={[styles.filterPillText, selectedFilter === 'THREATS' && styles.filterPillTextActive]}>
-            🚨 THREATS ({stats?.threatsCount || 0})
+            THREATS ({stats?.threatsCount || 0})
           </Text>
         </TouchableOpacity>
 
@@ -165,7 +166,7 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
           onPress={() => setSelectedFilter('PRICE_CREEP')}
         >
           <Text style={[styles.filterPillText, selectedFilter === 'PRICE_CREEP' && styles.filterPillTextActive]}>
-            📈 PRICE HIKES ({stats?.priceCreepsCount || 0})
+            PRICE HIKES ({stats?.priceCreepsCount || 0})
           </Text>
         </TouchableOpacity>
 
@@ -174,7 +175,7 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
           onPress={() => setSelectedFilter('TRIAL_TRAP')}
         >
           <Text style={[styles.filterPillText, selectedFilter === 'TRIAL_TRAP' && styles.filterPillTextActive]}>
-            ⚠️ TRIAL TRAPS ({stats?.trialTrapsCount || 0})
+            TRIAL TRAPS ({stats?.trialTrapsCount || 0})
           </Text>
         </TouchableOpacity>
 
@@ -183,7 +184,7 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
           onPress={() => setSelectedFilter('DOUBLE_SUBSCRIPTION')}
         >
           <Text style={[styles.filterPillText, selectedFilter === 'DOUBLE_SUBSCRIPTION' && styles.filterPillTextActive]}>
-            🔄 DUPLICATES ({stats?.doubleSubscriptionsCount || 0})
+            DUPLICATES ({stats?.doubleSubscriptionsCount || 0})
           </Text>
         </TouchableOpacity>
 
@@ -192,7 +193,7 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
           onPress={() => setSelectedFilter('ZOMBIE_CHARGE')}
         >
           <Text style={[styles.filterPillText, selectedFilter === 'ZOMBIE_CHARGE' && styles.filterPillTextActive]}>
-            🧟 ZOMBIES ({stats?.zombieChargesCount || 0})
+            INACTIVE ({stats?.zombieChargesCount || 0})
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -233,19 +234,20 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
       {onAskAI && (
         <View style={styles.aiCopilotCard}>
           <View style={styles.aiCopilotTop}>
-            <Text style={styles.aiCopilotBadge}>🤖 SUBCLEAR AI COPILOT</Text>
+            <Text style={styles.aiCopilotBadge}>SUBCLEAR AI COPILOT</Text>
             <Text style={styles.aiCopilotStatus}>ACTIVE // FASTAPI HOSTED</Text>
           </View>
           <Text style={styles.aiCopilotTitle}>NEED DEEP SUBSCRIPTION INTELLIGENCE?</Text>
           <Text style={styles.aiCopilotDesc}>
-            Chat with SubClear AI to decode obscure bank descriptors, generate customized cancellation dispute notices, or audit sneaky renewals.
+            Decode obscure bank descriptors, generate customized cancellation dispute notices, or audit sneaky renewals.
           </Text>
           <TouchableOpacity
             style={styles.aiCopilotButton}
             onPress={() => onAskAI('Can you perform a full audit of all my active mandates and highlight the highest annualized risks?')}
             activeOpacity={0.8}
           >
-            <Text style={styles.aiCopilotButtonText}>💬 LAUNCH SUBCLEAR AI COPILOT</Text>
+            <Ionicons name="sparkles-outline" size={12} color="#111827" style={{ marginRight: 6 }} />
+            <Text style={styles.aiCopilotButtonText}>LAUNCH SUBCLEAR AI COPILOT</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -405,9 +407,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   aiCopilotButton: {
+    flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     paddingVertical: 9,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
     ...BRUTALIST.shadowSm,

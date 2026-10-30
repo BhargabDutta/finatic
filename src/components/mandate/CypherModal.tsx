@@ -71,7 +71,7 @@ export const CypherModal: React.FC<CypherModalProps> = ({ visible, onClose }) =>
               onPress={() => setActiveTab('QUERIES')}
             >
               <Text style={[styles.tabBtnText, activeTab === 'QUERIES' && styles.tabBtnTextActive]}>
-                ⚡ CYPHER THREAT QUERIES
+                CYPHER THREAT QUERIES
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -79,7 +79,7 @@ export const CypherModal: React.FC<CypherModalProps> = ({ visible, onClose }) =>
               onPress={() => setActiveTab('SCHEMA')}
             >
               <Text style={[styles.tabBtnText, activeTab === 'SCHEMA' && styles.tabBtnTextActive]}>
-                🕸️ GRAPH SCHEMA
+                GRAPH SCHEMA
               </Text>
             </TouchableOpacity>
           </View>

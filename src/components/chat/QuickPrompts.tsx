@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { BRUTALIST } from '../../theme/styles';
 
 interface QuickPromptsProps {
@@ -15,18 +15,45 @@ interface QuickPromptsProps {
 }
 
 const SAMPLE_PROMPTS = [
-  { label: '🔍 Audit Netflix (₹649)', prompt: 'Can you audit my Netflix subscription? It went up to ₹649 from ₹499.' },
-  { label: '⚡ Cancel Canva Trial', prompt: 'How do I cancel a Canva Pro trial before the ₹899 recurring mandate bills?' },
-  { label: '🛑 Dispute Zombie Cult.fit', prompt: 'Cult.fit is charging me ₹1,750 on NACH every month but I have not visited in 7 months. How do I kill it?' },
-  { label: '🏷️ Decode BILLDESK*NFLX', prompt: 'What does the transaction descriptor BILLDESK*NFLX_MUM_AUTOPAY mean?' },
-  { label: '📜 Section 25 Dispute Notice', prompt: 'Explain the RBI Section 25 PSSA dispute notice for merchant ghosting.' },
-  { label: '💡 UPI AutoPay vs Card SI', prompt: 'What is the difference between UPI AutoPay and Card Standing Instructions?' },
+  {
+    icon: 'search-outline' as const,
+    label: 'Audit Netflix Hike',
+    prompt: 'Can you audit my Netflix subscription? It increased from 499 to 649.',
+  },
+  {
+    icon: 'close-circle-outline' as const,
+    label: 'Cancel Canva Trial',
+    prompt: 'How do I cancel a Canva Pro trial before the 899 recurring mandate charges?',
+  },
+  {
+    icon: 'shield-outline' as const,
+    label: 'Dispute Zombie Mandate',
+    prompt: 'Cult.fit is charging 1750 on NACH monthly but I have not used it in 7 months. How do I revoke it?',
+  },
+  {
+    icon: 'barcode-outline' as const,
+    label: 'Decode BILLDESK*NFLX',
+    prompt: 'What does the transaction descriptor BILLDESK*NFLX_MUM_AUTOPAY mean?',
+  },
+  {
+    icon: 'document-text-outline' as const,
+    label: 'Section 25 Notice',
+    prompt: 'Explain the Section 25 PSSA dispute notice for non-responsive merchants.',
+  },
+  {
+    icon: 'card-outline' as const,
+    label: 'UPI vs Card SI',
+    prompt: 'What is the operational difference between UPI AutoPay and Card Standing Instructions?',
+  },
 ];
 
 export const QuickPrompts: React.FC<QuickPromptsProps> = ({ onSelectPrompt, disabled }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>⚡ QUICK AUDIT PROMPTS:</Text>
+      <View style={styles.titleRow}>
+        <Ionicons name="flash-outline" size={12} color="#6B7280" />
+        <Text style={styles.sectionTitle}>SUGGESTED AUDIT TOPICS</Text>
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -40,6 +67,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({ onSelectPrompt, disa
             activeOpacity={0.7}
             disabled={disabled}
           >
+            <Ionicons name={item.icon} size={12} color="#111827" style={{ marginRight: 5 }} />
             <Text style={styles.pillText}>{item.label}</Text>
           </TouchableOpacity>
         ))}
@@ -51,17 +79,21 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({ onSelectPrompt, disa
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
-    borderTopWidth: 1.5,
-    borderTopColor: COLORS.border,
-    backgroundColor: COLORS.paper,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
   },
-  sectionTitle: {
-    fontFamily: BRUTALIST.fontMono,
-    fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.mutedText,
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 12,
     marginBottom: 6,
+    gap: 4,
+  },
+  sectionTitle: {
+    fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 9.5,
+    color: '#6B7280',
     letterSpacing: 0.5,
   },
   scrollContent: {
@@ -69,20 +101,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pillButton: {
-    backgroundColor: COLORS.white,
-    borderWidth: BRUTALIST.borderWidthThin,
-    borderColor: COLORS.black,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#111827',
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5.5,
     ...BRUTALIST.shadowSm,
   },
   pillDisabled: {
     opacity: 0.5,
   },
   pillText: {
-    fontFamily: BRUTALIST.fontMono,
+    fontFamily: BRUTALIST.fontSansBold,
     fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.black,
+    color: '#111827',
   },
 });

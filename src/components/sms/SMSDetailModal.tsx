@@ -111,7 +111,10 @@ export const SMSDetailModal: React.FC<SMSDetailModalProps> = ({
 
               {/* Privacy Shield Notice */}
               <View style={styles.privacyCard}>
-                <Text style={styles.privacyTitle}>🔒 ZERO-KNOWLEDGE PRIVACY ACTIVE</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                  <Ionicons name="shield-checkmark-outline" size={13} color={COLORS.ink} style={{ marginRight: 6 }} />
+                  <Text style={styles.privacyTitle}>ZERO-KNOWLEDGE PRIVACY ACTIVE</Text>
+                </View>
                 <Text style={styles.privacyDesc}>
                   Finatic never scans or stores OTPs, personal P2P transfers, or retail swipes. Only verified auto-payments and recurring mandates are captured.
                 </Text>

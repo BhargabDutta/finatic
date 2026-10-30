@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 
@@ -17,45 +18,43 @@ export const SyntheticDataToolbar: React.FC<SyntheticDataToolbarProps> = ({
   const handleGeneratePress = () => {
     onGenerate();
     Alert.alert(
-      'Demo Dataset Generated',
-      'Loaded 12 months of synthetic bank statements with 4 real-world subscription traps (Netflix price creep, Hotstar double billing, Canva trial ambush, Cult.fit NACH).',
-      [{ text: 'OK' }]
+      'Demo Dataset Loaded',
+      'Injected 12 months of test statements containing 4 subscription traps: Netflix price hike, Canva trial trap, Hotstar duplicate, and Cult.fit zombie mandate.'
     );
   };
 
   const handleResetPress = () => {
     onReset();
-    Alert.alert('Reset', 'Mandates and statement cache have been reset.');
+    Alert.alert('Reset Complete', 'Restored default mandate data.');
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.headerRow}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>TEST & DEMO TOOLKIT</Text>
-        </View>
-        <Text style={styles.statusText}>SYNTHETIC STATEMENTS</Text>
+    <View style={styles.bar}>
+      <View style={styles.leftInfo}>
+        <Ionicons name="sparkles-outline" size={14} color={COLORS.ink} />
+        <Text style={styles.barLabel}>DEMO DATASET</Text>
       </View>
 
-      <Text style={styles.title}>1-Tap Synthetic Data Generator</Text>
-      <Text style={styles.description}>
-        No real bank SMS? Generate 12 months of synthetic statements to test stealth price creep, trial ambushes, and cross-card duplicate detection instantly.
-      </Text>
-
-      <View style={styles.buttonRow}>
+      <View style={styles.buttonGroup}>
         <TouchableOpacity
-          style={[styles.primaryBtn, isGenerating && styles.btnDisabled]}
+          style={[styles.loadBtn, isGenerating && styles.btnDisabled]}
           onPress={handleGeneratePress}
           disabled={isGenerating}
           activeOpacity={0.8}
         >
-          <Text style={styles.primaryBtnText}>
-            {isGenerating ? 'GENERATING...' : '⚡ GENERATE 12-MO DEMO DATA'}
+          <Ionicons
+            name="layers-outline"
+            size={12}
+            color="#FFFFFF"
+            style={{ marginRight: 4 }}
+          />
+          <Text style={styles.loadBtnText}>
+            {isGenerating ? 'LOADING...' : 'LOAD 12-MO TRAPS'}
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.secondaryBtn} onPress={handleResetPress} activeOpacity={0.8}>
-          <Text style={styles.secondaryBtnText}>🔄 RESET</Text>
+        <TouchableOpacity style={styles.resetBtn} onPress={handleResetPress} activeOpacity={0.8}>
+          <Ionicons name="refresh-outline" size={12} color={COLORS.ink} />
         </TouchableOpacity>
       </View>
     </View>
@@ -63,83 +62,59 @@ export const SyntheticDataToolbar: React.FC<SyntheticDataToolbarProps> = ({
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: BRUTALIST.borderWidth,
-    borderColor: COLORS.ink,
-    padding: 14,
-    marginBottom: 14,
-    ...BRUTALIST.shadowSm,
-  },
-  headerRow: {
+  bar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    backgroundColor: '#FFFFFF',
+    borderWidth: BRUTALIST.borderWidthThin,
+    borderColor: COLORS.ink,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 10,
+    ...BRUTALIST.shadowSm,
   },
-  badge: {
-    backgroundColor: COLORS.ink,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+  leftInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  badgeText: {
-    color: '#FFFFFF',
+  barLabel: {
     fontFamily: BRUTALIST.fontSansBold,
-    fontSize: 8.5,
+    fontSize: 10.5,
+    color: COLORS.ink,
     letterSpacing: 0.5,
   },
-  statusText: {
-    fontFamily: BRUTALIST.fontMono,
-    fontSize: 9,
-    color: COLORS.mutedText,
-    fontWeight: '700',
-  },
-  title: {
-    fontSize: 14,
-    fontFamily: BRUTALIST.fontSansBold,
-    color: COLORS.ink,
-    marginBottom: 3,
-  },
-  description: {
-    fontSize: 11,
-    fontFamily: BRUTALIST.fontSans,
-    color: COLORS.mutedText,
-    lineHeight: 15,
-    marginBottom: 10,
-  },
-  buttonRow: {
+  buttonGroup: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  primaryBtn: {
-    flex: 2,
-    backgroundColor: COLORS.ink,
-    paddingVertical: 9,
     alignItems: 'center',
-    borderWidth: 1.5,
+    gap: 6,
+  },
+  loadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.ink,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
     borderColor: COLORS.ink,
-    ...BRUTALIST.shadowSm,
   },
   btnDisabled: {
     opacity: 0.6,
   },
-  primaryBtnText: {
+  loadBtnText: {
     color: '#FFFFFF',
     fontFamily: BRUTALIST.fontSansBold,
     fontSize: 10,
     letterSpacing: 0.3,
   },
-  secondaryBtn: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 9,
-    alignItems: 'center',
-    borderWidth: 1.5,
+  resetBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
     borderColor: COLORS.ink,
-  },
-  secondaryBtnText: {
-    color: COLORS.ink,
-    fontFamily: BRUTALIST.fontSansBold,
-    fontSize: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

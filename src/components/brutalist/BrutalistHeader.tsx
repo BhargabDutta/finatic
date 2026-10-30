@@ -1,23 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
-import { BrutalistButton } from './BrutalistButton';
 
 interface BrutalistHeaderProps {
-  onOpenSimulator: () => void;
-  onResetData: () => void;
+  onResetData?: () => void;
 }
 
-export const BrutalistHeader: React.FC<BrutalistHeaderProps> = ({
-  onOpenSimulator,
-  onResetData,
-}) => {
-  const todayStr = new Date().toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).toUpperCase();
+export const BrutalistHeader: React.FC<BrutalistHeaderProps> = () => {
+  const todayStr = new Date()
+    .toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+    .toUpperCase();
 
   return (
     <View style={styles.container}>
@@ -37,21 +35,24 @@ export const BrutalistHeader: React.FC<BrutalistHeaderProps> = ({
           </View>
         </View>
 
-        <View style={styles.buttonGroup}>
-          <BrutalistButton
-            title="+ TEST DATA"
-            onPress={onOpenSimulator}
-            variant="ink"
-            size="sm"
-            icon="flash"
-            style={styles.actionBtn}
-          />
+        {/* Clean Live Status Pill */}
+        <View style={styles.liveShieldPill}>
+          <View style={styles.liveShieldDot} />
+          <Text style={styles.liveShieldText}>ACTIVE</Text>
         </View>
       </View>
 
       <View style={styles.dateBar}>
         <Text style={styles.dateText}>DATE: {todayStr}</Text>
-        <Text style={styles.tagline}>🛡️ 100% ON-DEVICE PRIVACY</Text>
+        <View style={styles.privacyTag}>
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={12}
+            color={COLORS.ink}
+            style={{ marginRight: 4 }}
+          />
+          <Text style={styles.tagline}>100% ON-DEVICE PRIVACY</Text>
+        </View>
       </View>
     </View>
   );
@@ -113,16 +114,32 @@ const styles = StyleSheet.create({
     color: COLORS.mutedText,
     marginTop: 1,
   },
-  buttonGroup: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+  liveShieldPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1.5,
+    borderColor: COLORS.ink,
+    backgroundColor: '#F9FAFB',
+    gap: 5,
   },
-  actionBtn: {
-    marginTop: 2,
+  liveShieldDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+  },
+  liveShieldText: {
+    fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 9.5,
+    color: COLORS.ink,
+    letterSpacing: 0.5,
   },
   dateBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 10,
     paddingTop: 8,
     borderTopWidth: 1,
@@ -133,6 +150,10 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: COLORS.mutedText,
+  },
+  privacyTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   tagline: {
     fontFamily: BRUTALIST.fontSansBold,
