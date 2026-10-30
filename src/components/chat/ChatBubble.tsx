@@ -48,7 +48,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRetry }) => {
           </View>
         )}
 
-        {/* Narrative / Summary */}
+        {/* Narrative / Intro Summary */}
         {section.summary && (
           <Text style={styles.sectionSummaryText}>{section.summary}</Text>
         )}
@@ -56,12 +56,28 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRetry }) => {
         {/* Structured Key-Value Pairs */}
         {section.keyValues.length > 0 && (
           <View style={styles.keyValueGrid}>
-            {section.keyValues.map((kv, kvIdx) => (
-              <View key={kvIdx} style={styles.keyValueRow}>
-                <Text style={styles.keyLabel}>{kv.label}</Text>
-                <Text style={styles.keyValue}>{kv.value}</Text>
-              </View>
-            ))}
+            {section.keyValues.map((kv, kvIdx) => {
+              const isLongValue = kv.value.length > 28;
+              return (
+                <View
+                  key={kvIdx}
+                  style={[
+                    styles.keyValueRow,
+                    isLongValue ? styles.keyValueRowStacked : styles.keyValueRowInline,
+                  ]}
+                >
+                  <Text style={styles.keyLabel}>{kv.label}</Text>
+                  <Text
+                    style={[
+                      styles.keyValue,
+                      isLongValue ? styles.keyValueStacked : styles.keyValueInline,
+                    ]}
+                  >
+                    {kv.value}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         )}
 
@@ -82,13 +98,34 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRetry }) => {
         {/* Bullet Points */}
         {section.bulletPoints.length > 0 && (
           <View style={styles.bulletList}>
-            {section.bulletPoints.map((point, pIdx) => (
-              <View key={pIdx} style={styles.bulletRow}>
-                <View style={styles.bulletDot} />
-                <Text style={styles.bulletText}>{point}</Text>
-              </View>
-            ))}
+            {section.bulletPoints.map((point, pIdx) => {
+              const colonIdx = point.indexOf(':');
+              const hasTitle = colonIdx > 0 && colonIdx < 40;
+              const titlePart = hasTitle ? point.slice(0, colonIdx + 1) : '';
+              const bodyPart = hasTitle ? point.slice(colonIdx + 1).trim() : point;
+
+              return (
+                <View key={pIdx} style={styles.bulletRow}>
+                  <View style={styles.bulletDot} />
+                  <Text style={styles.bulletText}>
+                    {hasTitle ? (
+                      <>
+                        <Text style={styles.bulletTitle}>{titlePart} </Text>
+                        <Text style={styles.bulletBody}>{bodyPart}</Text>
+                      </>
+                    ) : (
+                      point
+                    )}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
+        )}
+
+        {/* Concluding / Outro Text */}
+        {section.conclusion && (
+          <Text style={styles.sectionConclusionText}>{section.conclusion}</Text>
         )}
       </View>
     );
@@ -162,6 +199,7 @@ const styles = StyleSheet.create({
   bubbleContainer: {
     marginVertical: 6,
     paddingHorizontal: 12,
+    width: '100%',
   },
   userContainer: {
     alignItems: 'flex-end',
@@ -204,7 +242,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   bubbleCard: {
-    maxWidth: '94%',
     padding: 14,
     borderWidth: BRUTALIST.borderWidth,
     borderColor: '#111827',
@@ -212,9 +249,12 @@ const styles = StyleSheet.create({
   },
   userCard: {
     backgroundColor: '#111827',
+    maxWidth: '85%',
   },
   assistantCard: {
     backgroundColor: '#FFFFFF',
+    width: '100%',
+    maxWidth: '100%',
   },
   errorCard: {
     backgroundColor: '#FEF2F2',
@@ -225,23 +265,27 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: '#FFFFFF',
     fontFamily: BRUTALIST.fontSans,
+    flexWrap: 'wrap',
   },
   plainAssistantText: {
     fontSize: 13.5,
     lineHeight: 20,
     color: '#111827',
     fontFamily: BRUTALIST.fontSans,
+    flexWrap: 'wrap',
   },
   structuredContainer: {
-    gap: 10,
+    width: '100%',
+    gap: 8,
   },
   headlineText: {
     fontFamily: BRUTALIST.fontSansBold,
-    fontSize: 14,
+    fontSize: 14.5,
     color: '#111827',
     marginBottom: 4,
   },
   sectionBlock: {
+    width: '100%',
     marginBottom: 4,
   },
   sectionHeaderRow: {
@@ -254,12 +298,15 @@ const styles = StyleSheet.create({
     height: 12,
     backgroundColor: '#111827',
     marginRight: 6,
+    flexShrink: 0,
   },
   sectionTitle: {
     fontFamily: BRUTALIST.fontSansBold,
-    fontSize: 11.5,
+    fontSize: 12,
     color: '#111827',
     letterSpacing: 0.3,
+    flex: 1,
+    flexWrap: 'wrap',
   },
   sectionSummaryText: {
     fontFamily: BRUTALIST.fontSans,
@@ -267,6 +314,15 @@ const styles = StyleSheet.create({
     color: '#374151',
     lineHeight: 18,
     marginBottom: 6,
+    flexWrap: 'wrap',
+  },
+  sectionConclusionText: {
+    fontFamily: BRUTALIST.fontSans,
+    fontSize: 12.5,
+    color: '#4B5563',
+    lineHeight: 18,
+    marginTop: 6,
+    flexWrap: 'wrap',
   },
   keyValueGrid: {
     backgroundColor: '#F9FAFB',
@@ -275,32 +331,56 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     marginVertical: 4,
+    width: '100%',
   },
   keyValueRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#F3F4F6',
+  },
+  keyValueRowInline: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  keyValueRowStacked: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 2,
   },
   keyLabel: {
     fontFamily: BRUTALIST.fontSans,
     fontSize: 11.5,
     color: '#6B7280',
+    flexShrink: 0,
+    maxWidth: '45%',
   },
   keyValue: {
     fontFamily: BRUTALIST.fontSansBold,
     fontSize: 12,
     color: '#111827',
   },
+  keyValueInline: {
+    flex: 1,
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+  keyValueStacked: {
+    width: '100%',
+    textAlign: 'left',
+    marginTop: 1,
+  },
   stepsContainer: {
     marginVertical: 4,
     gap: 6,
+    width: '100%',
   },
   stepRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
+    paddingRight: 4,
   },
   stepBadge: {
     width: 18,
@@ -310,6 +390,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
+    flexShrink: 0,
   },
   stepBadgeText: {
     color: '#FFFFFF',
@@ -318,32 +399,49 @@ const styles = StyleSheet.create({
   },
   stepText: {
     flex: 1,
+    flexShrink: 1,
     fontFamily: BRUTALIST.fontSans,
     fontSize: 12.5,
     color: '#1F2937',
     lineHeight: 18,
+    flexWrap: 'wrap',
   },
   bulletList: {
     marginVertical: 4,
-    gap: 4,
+    gap: 6,
+    width: '100%',
   },
   bulletRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    alignItems: 'flex-start',
+    paddingRight: 4,
+    width: '100%',
   },
   bulletDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
     backgroundColor: '#111827',
+    marginTop: 7,
+    marginRight: 8,
+    flexShrink: 0,
   },
   bulletText: {
     flex: 1,
+    flexShrink: 1,
     fontFamily: BRUTALIST.fontSans,
     fontSize: 12.5,
     color: '#374151',
-    lineHeight: 17,
+    lineHeight: 18,
+    flexWrap: 'wrap',
+  },
+  bulletTitle: {
+    fontFamily: BRUTALIST.fontSansBold,
+    color: '#111827',
+  },
+  bulletBody: {
+    fontFamily: BRUTALIST.fontSans,
+    color: '#374151',
   },
   bubbleFooter: {
     flexDirection: 'row',

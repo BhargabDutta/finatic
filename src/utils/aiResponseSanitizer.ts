@@ -21,6 +21,7 @@ export interface CleanSection {
   keyValues: CleanKeyValue[];
   steps: CleanStep[];
   bulletPoints: string[];
+  conclusion?: string;
 }
 
 export interface SanitizedAiResult {
@@ -97,7 +98,8 @@ export function sanitizeAndStructureAiOutput(rawText: string): SanitizedAiResult
         currentSection.keyValues.length > 0 ||
         currentSection.steps.length > 0 ||
         currentSection.bulletPoints.length > 0 ||
-        currentSection.summary
+        currentSection.summary ||
+        currentSection.conclusion
       ) {
         sections.push(currentSection);
       }
@@ -120,30 +122,51 @@ export function sanitizeAndStructureAiOutput(rawText: string): SanitizedAiResult
       continue;
     }
 
-    // Check for Key-Value pair (e.g. "Merchant: Netflix", "Risk: High", "Status: Active")
-    const colonIdx = line.indexOf(':');
-    if (colonIdx > 0 && colonIdx < 35) {
-      const label = line.slice(0, colonIdx).trim();
-      const value = line.slice(colonIdx + 1).trim();
-      // Ensure label is short and not an entire sentence
-      if (label.length <= 30 && !label.includes('.') && value.length > 0) {
-        currentSection.keyValues.push({ label, value });
-        continue;
-      }
-    }
-
     // Check for Bullet point (e.g. "• Item", "- Item", "* Item")
+    // NOTE: Must check bullet point BEFORE key-value, so lines like "- Label: Details" are parsed as bullet items
     const bulletMatch = line.match(/^[-•*]\s*(.+)$/);
     if (bulletMatch) {
       currentSection.bulletPoints.push(bulletMatch[1].trim());
       continue;
     }
 
-    // Otherwise, treat as narrative summary/paragraph
-    if (!currentSection.summary) {
-      currentSection.summary = line;
+    // Check for Key-Value pair (e.g. "Merchant: Netflix", "Risk: High", "Status: Active")
+    const colonIdx = line.indexOf(':');
+    if (colonIdx > 0 && colonIdx < 35) {
+      const label = line.slice(0, colonIdx).trim();
+      const value = line.slice(colonIdx + 1).trim();
+      // Ensure label is short, contains no sentences, and does not start with bullet characters
+      if (
+        label.length <= 30 &&
+        !label.includes('.') &&
+        !/^[-•*]/.test(label) &&
+        value.length > 0
+      ) {
+        currentSection.keyValues.push({ label, value });
+        continue;
+      }
+    }
+
+    // Otherwise, treat as narrative text:
+    // If structured items already exist in current section, treat as conclusion/outro;
+    // otherwise treat as summary/intro.
+    const hasItems =
+      currentSection.keyValues.length > 0 ||
+      currentSection.steps.length > 0 ||
+      currentSection.bulletPoints.length > 0;
+
+    if (!hasItems) {
+      if (!currentSection.summary) {
+        currentSection.summary = line;
+      } else {
+        currentSection.summary += ' ' + line;
+      }
     } else {
-      currentSection.summary += ' ' + line;
+      if (!currentSection.conclusion) {
+        currentSection.conclusion = line;
+      } else {
+        currentSection.conclusion += ' ' + line;
+      }
     }
   }
 
@@ -153,7 +176,8 @@ export function sanitizeAndStructureAiOutput(rawText: string): SanitizedAiResult
     currentSection.keyValues.length > 0 ||
     currentSection.steps.length > 0 ||
     currentSection.bulletPoints.length > 0 ||
-    currentSection.summary
+    currentSection.summary ||
+    currentSection.conclusion
   ) {
     sections.push(currentSection);
   }

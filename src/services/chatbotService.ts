@@ -7,7 +7,7 @@ const FALLBACK_ENDPOINT = 'https://chatbot-finatiq.onrender.com';
 const REQUEST_TIMEOUT_MS = 60000; // 60s to accommodate Render cold start
 
 export const INITIAL_WELCOME_MESSAGE: ChatMessage = {
-  id: 'msg_welcome',
+  id: 'msg_welcome_v2',
   sender: 'assistant',
   text: `SubClear AI Copilot Ready
 
@@ -31,7 +31,9 @@ export async function getStoredChatMessages(): Promise<ChatMessage[]> {
     if (raw) {
       const parsed: ChatMessage[] = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((m) =>
+          m.id === 'msg_welcome' || m.id === 'msg_welcome_v2' ? INITIAL_WELCOME_MESSAGE : m
+        );
       }
     }
   } catch (err) {
