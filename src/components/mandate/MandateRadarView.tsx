@@ -31,18 +31,15 @@ interface MandateRadarViewProps {
 }
 
 export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages, onAskAI }) => {
-  const initialAudit = useMemo(() => auditCombinedMandates(realMessages), [realMessages]);
-  const [mandates, setMandates] = useState<Mandate[]>(() => initialAudit.mandates);
-  const [stats, setStats] = useState<MandateRadarStats | null>(() => initialAudit.stats);
-  const [prevMessages, setPrevMessages] = useState<SMSMessage[] | undefined>(realMessages);
+  const [syntheticAudit, setSyntheticAudit] = useState<{ mandates: Mandate[]; stats: MandateRadarStats } | null>(null);
 
-  // Sync state during render when real messages stream updates (React 19 pattern)
-  if (realMessages !== prevMessages) {
-    setPrevMessages(realMessages);
-    const updated = auditCombinedMandates(realMessages);
-    setMandates(updated.mandates);
-    setStats(updated.stats);
-  }
+  const activeAudit = useMemo(() => {
+    if (syntheticAudit) return syntheticAudit;
+    return auditCombinedMandates(realMessages);
+  }, [syntheticAudit, realMessages]);
+
+  const mandates = activeAudit.mandates;
+  const stats = activeAudit.stats;
 
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -90,18 +87,14 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
   const handleGenerateSyntheticData = useCallback(() => {
     setIsAuditing(true);
     setTimeout(() => {
-      const { mandates: synthMandates, stats: synthStats } = auditSyntheticStatement();
-      setMandates(synthMandates);
-      setStats(synthStats);
+      setSyntheticAudit(auditSyntheticStatement());
       setIsAuditing(false);
     }, 200);
   }, []);
 
   const handleResetSyntheticData = useCallback(() => {
-    const { mandates: freshMandates, stats: freshStats } = auditCombinedMandates(realMessages);
-    setMandates(freshMandates);
-    setStats(freshStats);
-  }, [realMessages]);
+    setSyntheticAudit(null);
+  }, []);
 
   return (
     <View style={styles.container}>

@@ -20,9 +20,12 @@ export interface PermissionResult {
 /**
  * Checks if running inside Expo Go client app (which lacks READ_SMS in its Google Play manifest)
  */
-export const isRunningInExpoGo: boolean =
-  Constants.appOwnership === 'expo' ||
-  Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+export const isRunningInExpoGo: boolean = Boolean(
+  Constants && (
+    (Constants as any).appOwnership === 'expo' ||
+    Constants.executionEnvironment === ExecutionEnvironment.StoreClient
+  )
+);
 
 /**
  * Checks whether native SMS reading is available (present in APK / dev build, absent in Expo Go)

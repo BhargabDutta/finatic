@@ -94,19 +94,23 @@ export const HomeScreen: React.FC = () => {
     let isMounted = true;
 
     async function init() {
-      // Check Android permissions
-      if (Platform.OS === 'android') {
-        const granted = await checkSMSPermission();
-        if (isMounted) setHasPermission(granted);
-        await registerBackgroundScan();
-      }
+      try {
+        // Check Android permissions
+        if (Platform.OS === 'android') {
+          const granted = await checkSMSPermission();
+          if (isMounted) setHasPermission(granted);
+          await registerBackgroundScan();
+        }
 
-      // Load stored messages
-      const storedMsgs = await getStoredSMSMessages();
-      const lastScan = await getLastScanTimestamp();
+        // Load stored messages
+        const storedMsgs = await getStoredSMSMessages();
+        const lastScan = await getLastScanTimestamp();
 
-      if (isMounted) {
-        refreshState(storedMsgs, lastScan);
+        if (isMounted) {
+          refreshState(storedMsgs, lastScan);
+        }
+      } catch (err) {
+        console.warn('[Finatic] Initial load error caught gracefully:', err);
       }
     }
 
