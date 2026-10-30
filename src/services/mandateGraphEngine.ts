@@ -370,11 +370,15 @@ export function extractMandatesFromSMS(messages: SMSMessage[]): Mandate[] {
     const account = `${p.bankOrSender || 'Bank'} •• ${p.accountDigits || 'XXXX'}`;
     const runbook = getCancellationRunbook(rail, merchName, p.mandateReference || undefined, account);
 
+    const descriptorTag = p.mandateReference 
+      ? p.mandateReference 
+      : `${(p.merchant || 'AUTOPAY').toUpperCase().replace(/[^A-Z0-9]/g, '_')}_MANDATE`;
+
     const chargeHistory: DebitEvent[] = msgs.map((m, idx) => ({
       id: `${m.id}_ev_${idx}`,
       date: new Date(m.date).toISOString().split('T')[0],
       amount: m.parsed.amount || 0,
-      rawDescriptor: m.body,
+      rawDescriptor: descriptorTag,
       account,
     }));
 
@@ -382,7 +386,7 @@ export function extractMandatesFromSMS(messages: SMSMessage[]): Mandate[] {
       id: `sms_man_${latest.id}`,
       merchantName: merchName,
       category: p.category || 'General',
-      rawDescriptor: latest.body,
+      rawDescriptor: descriptorTag,
       aliases: [merchName],
       paymentRail: rail,
       account,
