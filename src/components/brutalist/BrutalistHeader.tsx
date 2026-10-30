@@ -30,18 +30,18 @@ export const BrutalistHeader: React.FC<BrutalistHeaderProps> = ({
           />
           <View style={styles.brandTextCol}>
             <View style={styles.logoBadge}>
-              <Text style={styles.logoBadgeText}>SYSTEM // RADAR</Text>
+              <Text style={styles.logoBadgeText}>AUTOPAY INTELLIGENCE</Text>
             </View>
             <Text style={styles.title}>FINATIC</Text>
-            <Text style={styles.subtitle}>SMS FINANCIAL INTEL</Text>
+            <Text style={styles.subtitle}>Privacy Shield & Sub Detective</Text>
           </View>
         </View>
 
         <View style={styles.buttonGroup}>
           <BrutalistButton
-            title="+ TEST"
+            title="+ TEST DATA"
             onPress={onOpenSimulator}
-            variant="yellow"
+            variant="ink"
             size="sm"
             icon="flash"
             style={styles.actionBtn}
@@ -51,7 +51,7 @@ export const BrutalistHeader: React.FC<BrutalistHeaderProps> = ({
 
       <View style={styles.dateBar}>
         <Text style={styles.dateText}>DATE: {todayStr}</Text>
-        <Text style={styles.tagline}>ON-DEVICE AUTO-SCAN: 3M</Text>
+        <Text style={styles.tagline}>🛡️ 100% ON-DEVICE PRIVACY</Text>
       </View>
     </View>
   );
@@ -59,7 +59,7 @@ export const BrutalistHeader: React.FC<BrutalistHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.paper,
+    backgroundColor: '#FFFFFF',
     paddingTop: Platform.OS === 'android' ? 44 : 20,
     paddingHorizontal: 16,
     paddingBottom: 10,
@@ -77,12 +77,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoImage: {
-    width: 48,
-    height: 48,
-    borderWidth: 2.5,
+    width: 44,
+    height: 44,
+    borderWidth: 2,
     borderColor: COLORS.ink,
     marginRight: 10,
-    backgroundColor: COLORS.yellow,
+    backgroundColor: '#FFFFFF',
   },
   brandTextCol: {
     flex: 1,
@@ -92,56 +92,51 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   logoBadgeText: {
-    color: COLORS.yellow,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    fontSize: 9,
-    letterSpacing: 1,
+    color: '#FFFFFF',
+    fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 8.5,
+    letterSpacing: 0.5,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '900',
-    letterSpacing: -1,
+    fontSize: 28,
+    fontFamily: BRUTALIST.fontSansBold,
+    letterSpacing: -0.5,
     color: COLORS.ink,
-    lineHeight: 34,
+    lineHeight: 30,
   },
   subtitle: {
-    fontFamily: BRUTALIST.fontMono,
-    fontSize: 10,
-    fontWeight: '700',
+    fontFamily: BRUTALIST.fontSans,
+    fontSize: 11,
     color: COLORS.mutedText,
-    letterSpacing: 0.5,
-    marginTop: 2,
+    marginTop: 1,
   },
   buttonGroup: {
     flexDirection: 'column',
     alignItems: 'flex-end',
-    gap: 6,
   },
   actionBtn: {
-    marginTop: 4,
+    marginTop: 2,
   },
   dateBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
     paddingTop: 8,
-    borderTopWidth: 1.5,
-    borderColor: COLORS.ink,
+    borderTopWidth: 1,
+    borderColor: COLORS.faintBorder,
   },
   dateText: {
     fontFamily: BRUTALIST.fontMono,
     fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.ink,
+    fontWeight: '700',
+    color: COLORS.mutedText,
   },
   tagline: {
-    fontFamily: BRUTALIST.fontMono,
+    fontFamily: BRUTALIST.fontSansBold,
     fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.coral,
+    color: COLORS.ink,
   },
 });

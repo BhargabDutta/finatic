@@ -8,7 +8,6 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 
 interface CypherModalProps {

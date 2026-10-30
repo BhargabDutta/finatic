@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 import { Mandate, MandateRadarStats } from '../../types/mandate';
-import { auditCombinedMandates } from '../../services/mandateGraphEngine';
+import { auditCombinedMandates, auditSyntheticStatement } from '../../services/mandateGraphEngine';
 import { AuraSyncResult } from '../../services/neo4jSync';
 import { buildMandateAuditPrompt } from '../../services/chatbotService';
 import { SMSMessage } from '../../types/sms';
@@ -19,6 +19,8 @@ import { MandateCard } from './MandateCard';
 import { CancellationModal } from './CancellationModal';
 import { CypherModal } from './CypherModal';
 import { Neo4jAuraSyncModal } from './Neo4jAuraSyncModal';
+import { SyntheticDataToolbar } from './SyntheticDataToolbar';
+import { GraphVisualizerCard } from './GraphVisualizerCard';
 
 type FilterType = 'ALL' | 'THREATS' | 'PRICE_CREEP' | 'TRIAL_TRAP' | 'DOUBLE_SUBSCRIPTION' | 'ZOMBIE_CHARGE';
 
@@ -28,8 +30,19 @@ interface MandateRadarViewProps {
 }
 
 export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages, onAskAI }) => {
-  const [mandates, setMandates] = useState<Mandate[]>(() => auditCombinedMandates(realMessages).mandates);
-  const [stats, setStats] = useState<MandateRadarStats | null>(() => auditCombinedMandates(realMessages).stats);
+  const initialAudit = useMemo(() => auditCombinedMandates(realMessages), [realMessages]);
+  const [mandates, setMandates] = useState<Mandate[]>(() => initialAudit.mandates);
+  const [stats, setStats] = useState<MandateRadarStats | null>(() => initialAudit.stats);
+  const [prevMessages, setPrevMessages] = useState<SMSMessage[] | undefined>(realMessages);
+
+  // Sync state during render when real messages stream updates (React 19 pattern)
+  if (realMessages !== prevMessages) {
+    setPrevMessages(realMessages);
+    const updated = auditCombinedMandates(realMessages);
+    setMandates(updated.mandates);
+    setStats(updated.stats);
+  }
+
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
@@ -38,15 +51,6 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
   const [isCypherModalOpen, setIsCypherModalOpen] = useState<boolean>(false);
   const [isAuraModalOpen, setIsAuraModalOpen] = useState<boolean>(false);
   const [auraSyncResult, setAuraSyncResult] = useState<AuraSyncResult | null>(null);
-
-  // Re-sync mandates when real SMS messages arrive from inbox or simulator
-  useEffect(() => {
-    if (realMessages && realMessages.length > 0) {
-      const { mandates: updatedMandates, stats: updatedStats } = auditCombinedMandates(realMessages);
-      setMandates(updatedMandates);
-      setStats(updatedStats);
-    }
-  }, [realMessages]);
 
   // Open the Live Neo4j Aura Synchronizer
   const handleOpenAuraAudit = useCallback(() => {
@@ -82,6 +86,22 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
     setIsCancelModalOpen(true);
   };
 
+  const handleGenerateSyntheticData = useCallback(() => {
+    setIsAuditing(true);
+    setTimeout(() => {
+      const { mandates: synthMandates, stats: synthStats } = auditSyntheticStatement();
+      setMandates(synthMandates);
+      setStats(synthStats);
+      setIsAuditing(false);
+    }, 200);
+  }, []);
+
+  const handleResetSyntheticData = useCallback(() => {
+    const { mandates: freshMandates, stats: freshStats } = auditCombinedMandates(realMessages);
+    setMandates(freshMandates);
+    setStats(freshStats);
+  }, [realMessages]);
+
   return (
     <View style={styles.container}>
       {/* Hero Annual Bleed Card */}
@@ -95,13 +115,20 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
         />
       )}
 
+      {/* 1-Tap Synthetic Data Generator for Testing & Demo */}
+      <SyntheticDataToolbar
+        onGenerate={handleGenerateSyntheticData}
+        onReset={handleResetSyntheticData}
+        isGenerating={isAuditing}
+      />
+
       {/* Search Input */}
       <View style={styles.searchContainer}>
         <Text style={styles.searchPrefix}>🔍</Text>
         <TextInput
           style={styles.searchInput}
-          placeholder="SEARCH MERCHANT, DESCRIPTOR OR ACCOUNT..."
-          placeholderTextColor="#888"
+          placeholder="Search merchant, descriptor, or account..."
+          placeholderTextColor="#9CA3AF"
           value={searchQuery}
           onChangeText={setSearchQuery}
           autoCapitalize="none"
@@ -223,43 +250,12 @@ export const MandateRadarView: React.FC<MandateRadarViewProps> = ({ realMessages
         </View>
       )}
 
-      {/* Neo4j Graph Showcase Card */}
-      <View style={styles.neo4jCard}>
-        <View style={styles.neo4jTop}>
-          <Text style={[styles.neo4jBadge, auraSyncResult?.threats && styles.neo4jBadgeLive]}>
-            {auraSyncResult?.threats ? '🟢 AURA LIVE SYNCED' : 'NEO4J AURA GATEWAY'}
-          </Text>
-          <Text style={styles.neo4jStatus}>
-            {auraSyncResult?.threats
-              ? `⚡ ${auraSyncResult.latencyMs}ms // ${auraSyncResult.threats.nodeCount} NODES`
-              : 'STANDBY // TRANSACTIONAL HTTP'}
-          </Text>
-        </View>
-        <Text style={styles.neo4jTitle}>FINANCIAL KNOWLEDGE GRAPH</Text>
-        <Text style={styles.neo4jDesc}>
-          {auraSyncResult?.threats
-            ? `Active AuraDB sync complete! Discovered ${auraSyncResult.threats.stealthHikes.length} silent price creeps and ${auraSyncResult.threats.duplicateSubs.length} cross-account duplicate subscriptions directly via Cypher.`
-            : 'Modeled as Chained Time-Series events and Entity-Alias resolution to detect silent price creep and cross-account duplicates.'}
-        </Text>
-        
-        <View style={styles.neo4jBtnGroup}>
-          <TouchableOpacity
-            style={styles.neo4jButtonPrimary}
-            onPress={() => setIsAuraModalOpen(true)}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.neo4jButtonPrimaryText}>⚡ LIVE SYNC & THREAT AUDIT (AURA)</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.neo4jButtonSecondary}
-            onPress={() => setIsCypherModalOpen(true)}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.neo4jButtonSecondaryText}>📜 VIEW CYPHER STATEMENTS & SCHEMA</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* Neo4j Visual Graph Intelligence Card */}
+      <GraphVisualizerCard
+        threats={auraSyncResult?.threats}
+        onOpenAuraModal={() => setIsAuraModalOpen(true)}
+        onOpenCypherModal={() => setIsCypherModalOpen(true)}
+      />
 
       {/* Cancellation Runbook Modal */}
       <CancellationModal
@@ -306,9 +302,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 40,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '700',
-    fontSize: 10,
+    fontFamily: BRUTALIST.fontSans,
+    fontSize: 12,
     color: COLORS.ink,
   },
   clearBtn: {
@@ -316,8 +311,7 @@ const styles = StyleSheet.create({
   },
   clearBtnText: {
     fontSize: 12,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
     color: '#888',
   },
   filterScroll: {
@@ -328,7 +322,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: COLORS.ink,
-    paddingHorizontal: 10,
+    paddingHorizontal: 11,
     paddingVertical: 6,
     marginRight: 8,
   },
@@ -336,12 +330,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.ink,
   },
   filterPillActiveDanger: {
-    backgroundColor: '#FF3366',
+    backgroundColor: '#EF4444',
+    borderColor: '#EF4444',
   },
   filterPillText: {
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontSize: 10.5,
+    fontFamily: BRUTALIST.fontSansBold,
     color: COLORS.ink,
   },
   filterPillTextActive: {
@@ -352,29 +346,28 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     backgroundColor: '#FAFAFA',
-    borderWidth: 2,
-    borderColor: '#CCC',
+    borderWidth: 1.5,
+    borderColor: '#D1D5DB',
     borderStyle: 'dashed',
     padding: 24,
     alignItems: 'center',
     marginVertical: 10,
   },
   emptyTitle: {
-    fontSize: 12,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: '#666',
+    fontSize: 13,
+    fontFamily: BRUTALIST.fontSansBold,
+    color: '#4B5563',
   },
   emptySubtitle: {
-    fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#999',
+    fontSize: 11,
+    fontFamily: BRUTALIST.fontSans,
+    color: '#9CA3AF',
     marginTop: 4,
   },
   aiCopilotCard: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#111827',
     borderWidth: BRUTALIST.borderWidth,
-    borderColor: COLORS.cyan,
+    borderColor: COLORS.ink,
     padding: 14,
     marginBottom: 16,
     ...BRUTALIST.shadowDefault,
@@ -386,125 +379,43 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   aiCopilotBadge: {
-    backgroundColor: COLORS.cyan,
-    color: '#000',
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    backgroundColor: '#F3F4F6',
+    color: '#111827',
+    fontSize: 9,
+    fontFamily: BRUTALIST.fontSansBold,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
   aiCopilotStatus: {
-    color: COLORS.cyan,
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '700',
+    color: '#10B981',
+    fontSize: 9.5,
+    fontFamily: BRUTALIST.fontSansBold,
   },
   aiCopilotTitle: {
-    fontSize: 13,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: '#FFF',
+    fontSize: 14,
+    fontFamily: BRUTALIST.fontSansBold,
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   aiCopilotDesc: {
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#CBD5E1',
-    lineHeight: 14,
-    marginBottom: 10,
+    fontSize: 11,
+    fontFamily: BRUTALIST.fontSans,
+    color: '#D1D5DB',
+    lineHeight: 15,
+    marginBottom: 12,
   },
   aiCopilotButton: {
-    backgroundColor: COLORS.cyan,
+    backgroundColor: '#FFFFFF',
     paddingVertical: 9,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#000',
+    borderColor: '#FFFFFF',
     ...BRUTALIST.shadowSm,
   },
   aiCopilotButtonText: {
-    color: '#000',
-    fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  neo4jCard: {
-    backgroundColor: '#000000',
-    borderWidth: BRUTALIST.borderWidth,
-    borderColor: '#00E575',
-    padding: 14,
-    marginBottom: 20,
-    ...BRUTALIST.shadowDefault,
-  },
-  neo4jTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  neo4jBadge: {
-    backgroundColor: '#FFE600',
-    color: '#000',
-    fontSize: 8,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  neo4jBadgeLive: {
-    backgroundColor: '#00E575',
-  },
-  neo4jStatus: {
-    color: '#00E575',
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '700',
-  },
-  neo4jTitle: {
-    fontSize: 14,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: '#FFF',
-    marginBottom: 4,
-  },
-  neo4jDesc: {
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#CCC',
-    lineHeight: 13,
-    marginBottom: 12,
-  },
-  neo4jBtnGroup: {
-    gap: 8,
-  },
-  neo4jButtonPrimary: {
-    backgroundColor: '#FFE600',
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
-    ...BRUTALIST.shadowSm,
-  },
-  neo4jButtonPrimaryText: {
-    color: '#000',
-    fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  neo4jButtonSecondary: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
-  },
-  neo4jButtonSecondaryText: {
-    color: '#000',
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    letterSpacing: 0.5,
+    color: '#111827',
+    fontSize: 11,
+    fontFamily: BRUTALIST.fontSansBold,
+    letterSpacing: 0.3,
   },
 });

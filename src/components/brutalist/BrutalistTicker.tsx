@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../theme/colors';
 import { BRUTALIST } from '../../theme/styles';
 
@@ -9,21 +9,17 @@ interface BrutalistTickerProps {
 }
 
 export const BrutalistTicker: React.FC<BrutalistTickerProps> = ({
-  statusText = 'FINATIC INTELLIGENCE // 3-MIN INTERVAL SYNC ACTIVE // ON-DEVICE PARSER // ZERO CLOUD LEAK',
-  bgColor = COLORS.yellow,
+  statusText = 'Zero-Knowledge AutoPay Protection Active • Local SMS Parser',
+  bgColor = COLORS.ink,
 }) => {
   return (
     <View style={[styles.container, { backgroundColor: bgColor }]}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.pulseDot} />
-        <Text style={styles.tickerText}>
-          {statusText} &nbsp;///&nbsp; {statusText}
+      <View style={styles.contentRow}>
+        <View style={styles.indicatorDot} />
+        <Text style={styles.statusText} numberOfLines={1}>
+          {statusText}
         </Text>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -33,27 +29,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: BRUTALIST.borderWidth,
     borderTopWidth: BRUTALIST.borderWidth,
     borderColor: COLORS.ink,
-    paddingVertical: 5,
-    overflow: 'hidden',
+    paddingVertical: 7,
+    paddingHorizontal: 14,
   },
-  scrollContent: {
+  contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
   },
-  pulseDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.coral,
+  indicatorDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: COLORS.lime,
     marginRight: 8,
   },
-  tickerText: {
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+  statusText: {
+    flex: 1,
+    fontFamily: BRUTALIST.fontSansMedium,
     fontSize: 11,
-    letterSpacing: 1,
-    color: COLORS.ink,
-    textTransform: 'uppercase',
+    letterSpacing: 0.2,
+    color: '#F9FAFB',
   },
 });
+

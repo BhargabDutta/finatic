@@ -14,15 +14,15 @@ export const MandateCard: React.FC<MandateCardProps> = ({ mandate, onCancelPress
   const getRailBadgeStyle = () => {
     switch (mandate.paymentRail) {
       case 'UPI_AUTOPAY':
-        return { bg: '#E6F4FE', border: '#0070F3', text: '#0070F3' };
+        return { bg: '#F0FDF4', border: '#16A34A', text: '#15803D' };
       case 'CARD_SI':
-        return { bg: '#FFF0F3', border: '#FF3366', text: '#FF3366' };
+        return { bg: '#FEF2F2', border: '#DC2626', text: '#B91C1C' };
       case 'NACH':
-        return { bg: '#FFFDE6', border: '#D4A000', text: '#806000' };
+        return { bg: '#FFFBEB', border: '#D97706', text: '#B45309' };
       case 'APP_STORE':
-        return { bg: '#E6FFFA', border: '#00B894', text: '#00B894' };
+        return { bg: '#F5F3FF', border: '#7C3AED', text: '#6D28D9' };
       default:
-        return { bg: '#EEE', border: '#333', text: '#333' };
+        return { bg: '#F3F4F6', border: '#4B5563', text: '#374151' };
     }
   };
 
@@ -130,100 +130,94 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   merchantName: {
-    fontSize: 16,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: COLORS.black,
-    textTransform: 'uppercase',
+    fontSize: 15,
+    fontFamily: BRUTALIST.fontSansBold,
+    color: COLORS.ink,
   },
   categoryText: {
-    fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#555',
-    marginTop: 1,
+    fontSize: 11,
+    fontFamily: BRUTALIST.fontSans,
+    color: COLORS.mutedText,
+    marginTop: 2,
   },
   railBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderWidth: 1.5,
+    borderWidth: 1,
   },
   railText: {
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    textTransform: 'uppercase',
+    fontSize: 9.5,
+    fontFamily: BRUTALIST.fontSansBold,
+    letterSpacing: 0.3,
   },
   descriptorBox: {
-    backgroundColor: '#F7F7F7',
+    backgroundColor: '#F9FAFB',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#E5E7EB',
     padding: 8,
     marginBottom: 10,
   },
   descriptorLabel: {
-    fontSize: 8,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: '#888',
+    fontSize: 8.5,
+    fontFamily: BRUTALIST.fontSansBold,
+    color: '#9CA3AF',
     letterSpacing: 0.5,
   },
   descriptorText: {
     fontSize: 11,
     fontFamily: BRUTALIST.fontMono,
     fontWeight: '700',
-    color: '#111',
+    color: COLORS.ink,
     marginVertical: 2,
   },
   accountText: {
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#666',
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontSans,
+    color: COLORS.mutedText,
   },
   threatBanner: {
     padding: 10,
-    borderWidth: 1.5,
-    borderColor: COLORS.black,
+    borderWidth: 1,
     marginBottom: 12,
   },
   threatHike: {
-    backgroundColor: '#FFF2E6',
-    borderLeftWidth: 5,
-    borderLeftColor: '#FF6600',
+    backgroundColor: '#FFFBEB',
+    borderColor: '#F59E0B',
+    borderLeftWidth: 4,
   },
   threatTrap: {
-    backgroundColor: '#F8EEFF',
-    borderLeftWidth: 5,
-    borderLeftColor: '#9900EF',
+    backgroundColor: '#FDF4FF',
+    borderColor: '#C026D3',
+    borderLeftWidth: 4,
   },
   threatDup: {
-    backgroundColor: '#EBF9FF',
-    borderLeftWidth: 5,
-    borderLeftColor: '#0099FF',
+    backgroundColor: '#EFF6FF',
+    borderColor: '#3B82F6',
+    borderLeftWidth: 4,
   },
   threatZombie: {
-    backgroundColor: '#EEEEEE',
-    borderLeftWidth: 5,
-    borderLeftColor: '#333333',
+    backgroundColor: '#F3F4F6',
+    borderColor: '#6B7280',
+    borderLeftWidth: 4,
   },
   threatTitle: {
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: COLORS.black,
-    marginBottom: 3,
+    fontSize: 11,
+    fontFamily: BRUTALIST.fontSansBold,
+    color: COLORS.ink,
+    marginBottom: 2,
   },
   threatDesc: {
-    fontSize: 9,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#333',
-    lineHeight: 13,
+    fontSize: 10.5,
+    fontFamily: BRUTALIST.fontSans,
+    color: '#4B5563',
+    lineHeight: 14,
   },
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderTopWidth: 1.5,
-    borderColor: '#EFEFEF',
+    borderTopWidth: 1,
+    borderColor: '#F3F4F6',
     paddingTop: 10,
   },
   amountArea: {
@@ -234,22 +228,21 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   monthlyAmount: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: COLORS.black,
+    fontWeight: '800',
+    color: COLORS.ink,
   },
   frequencyLabel: {
     fontSize: 11,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    color: '#666',
+    fontFamily: BRUTALIST.fontSans,
+    color: COLORS.mutedText,
     marginLeft: 2,
   },
   annualImpact: {
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#777',
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontSans,
+    color: COLORS.mutedText,
     marginTop: 1,
   },
   actionsGroup: {
@@ -258,33 +251,30 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   aiButton: {
-    backgroundColor: COLORS.cyan,
-    borderWidth: 2,
-    borderColor: COLORS.black,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: COLORS.ink,
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingVertical: 7,
     ...BRUTALIST.shadowSm,
   },
   aiButtonText: {
-    color: COLORS.black,
+    color: COLORS.ink,
     fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    letterSpacing: 0.5,
+    fontFamily: BRUTALIST.fontSansBold,
   },
   killButton: {
-    backgroundColor: COLORS.black,
-    borderWidth: 2,
-    borderColor: COLORS.black,
+    backgroundColor: COLORS.ink,
+    borderWidth: 1.5,
+    borderColor: COLORS.ink,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     ...BRUTALIST.shadowSm,
   },
   killButtonText: {
-    color: COLORS.yellow,
+    color: '#FFFFFF',
     fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    letterSpacing: 0.5,
+    fontFamily: BRUTALIST.fontSansBold,
+    letterSpacing: 0.3,
   },
 });

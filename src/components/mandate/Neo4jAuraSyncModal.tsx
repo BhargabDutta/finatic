@@ -268,9 +268,9 @@ export const Neo4jAuraSyncModal: React.FC<Neo4jAuraSyncModalProps> = ({
                       disabled={isTesting}
                     >
                       {isTesting ? (
-                        <ActivityIndicator size="small" color="#000" />
+                        <ActivityIndicator size="small" color="#FFF" />
                       ) : (
-                        <Text style={styles.smallBtnText}>🧪 TEST PING</Text>
+                        <Text style={[styles.smallBtnText, styles.testBtnText]}>🧪 TEST PING</Text>
                       )}
                     </TouchableOpacity>
 
@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
     ...BRUTALIST.shadowSm,
   },
   testBtn: {
-    backgroundColor: COLORS.yellow,
+    backgroundColor: COLORS.ink,
     flex: 2,
   },
   saveBtn: {
@@ -687,14 +687,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   demoBtn: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#F3F4F6',
     flex: 1.2,
   },
   smallBtnText: {
     fontSize: 10,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
     color: COLORS.ink,
+  },
+  testBtnText: {
+    color: '#FFFFFF',
   },
   testBanner: {
     flexDirection: 'row',
@@ -712,21 +714,20 @@ const styles = StyleSheet.create({
     borderColor: '#DC2626',
   },
   testBannerTitle: {
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontSize: 10,
+    fontFamily: BRUTALIST.fontSansBold,
   },
   testBannerMsg: {
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontMono,
+    fontSize: 9.5,
+    fontFamily: BRUTALIST.fontSans,
     color: '#333',
     marginTop: 2,
   },
   actionCard: {
-    backgroundColor: '#FFE600',
+    backgroundColor: '#FFFFFF',
     borderWidth: BRUTALIST.borderWidth,
     borderColor: COLORS.ink,
-    padding: 12,
+    padding: 14,
     marginBottom: 12,
     ...BRUTALIST.shadowSm,
   },
@@ -739,35 +740,32 @@ const styles = StyleSheet.create({
   actionBadge: {
     backgroundColor: COLORS.ink,
     color: '#FFF',
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontSize: 9,
+    fontFamily: BRUTALIST.fontSansBold,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
   actionSubtext: {
-    fontSize: 8.5,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '700',
-    color: COLORS.ink,
+    fontSize: 9.5,
+    fontFamily: BRUTALIST.fontSans,
+    color: COLORS.mutedText,
   },
   actionTitle: {
-    fontSize: 13,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
+    fontSize: 14,
+    fontFamily: BRUTALIST.fontSansBold,
     color: COLORS.ink,
     marginBottom: 4,
   },
   actionDesc: {
-    fontSize: 9.5,
-    fontFamily: BRUTALIST.fontMono,
-    color: '#222',
-    lineHeight: 14,
-    marginBottom: 10,
+    fontSize: 11,
+    fontFamily: BRUTALIST.fontSans,
+    color: COLORS.mutedText,
+    lineHeight: 15,
+    marginBottom: 12,
   },
   primarySyncBtn: {
     backgroundColor: COLORS.ink,
-    paddingVertical: 12,
+    paddingVertical: 11,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: COLORS.ink,
@@ -777,11 +775,10 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   primarySyncBtnText: {
-    color: COLORS.yellow,
+    color: '#FFFFFF',
     fontSize: 11,
-    fontFamily: BRUTALIST.fontMono,
-    fontWeight: '900',
-    letterSpacing: 0.5,
+    fontFamily: BRUTALIST.fontSansBold,
+    letterSpacing: 0.3,
   },
   loadingRow: {
     flexDirection: 'row',

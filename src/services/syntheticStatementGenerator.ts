@@ -1,5 +1,3 @@
-import { DebitEvent } from '../types/mandate';
-
 export interface SyntheticStatementRecord {
   id: string;
   date: string; // YYYY-MM-DD

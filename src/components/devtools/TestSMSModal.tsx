@@ -67,6 +67,22 @@ export const TestSMSModal: React.FC<TestSMSModalProps> = ({
     onClose();
   };
 
+  const handleInjectAllPresets = () => {
+    PRESET_TEMPLATES.forEach((tmpl, i) => {
+      const msg: SMSMessage = {
+        id: `preset-${Date.now()}-${i}`,
+        address: tmpl.sender,
+        body: tmpl.body,
+        date: Date.now() - (i * 86400000 * 15), // Spaced across weeks/months
+        read: true,
+        parsed: parseSMS(tmpl.body, tmpl.sender),
+        isSimulated: true,
+      };
+      onAddMessage(msg);
+    });
+    onClose();
+  };
+
   const handleAddCustom = () => {
     if (!customBody.trim()) return;
 
@@ -118,6 +134,13 @@ export const TestSMSModal: React.FC<TestSMSModalProps> = ({
                   onPress={handleInjectRandom}
                   variant="lime"
                   icon="flash"
+                />
+                <BrutalistButton
+                  title="⚡ INJECT ALL 5 AUTOPAY PRESETS"
+                  onPress={handleInjectAllPresets}
+                  variant="ink"
+                  icon="layers"
+                  style={{ marginTop: 8 }}
                 />
               </View>
 

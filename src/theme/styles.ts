@@ -1,56 +1,74 @@
-import { StyleSheet, Platform, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet, Platform, ViewStyle } from 'react-native';
 import { COLORS } from './colors';
 
 export const BRUTALIST = {
-  borderWidth: 2.5,
-  borderWidthThin: 2,
-  borderWidthThick: 3.5,
-  radius: 0, // True sharp brutalism
-  radiusSm: 4, // Slight softened brutalist edge for ergonomics
+  borderWidth: 2,
+  borderWidthThin: 1.5,
+  borderWidthThick: 3,
+  radius: 0, // True sharp architectural brutalism
+  radiusSm: 2,
 
+  // User-friendly System Sans-Serif Fonts (Clean, legible, readable)
+  fontSans: Platform.select({
+    ios: 'System',
+    android: 'sans-serif',
+    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  }),
+  fontSansMedium: Platform.select({
+    ios: 'System',
+    android: 'sans-serif-medium',
+    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  }),
+  fontSansBold: Platform.select({
+    ios: 'System',
+    android: 'sans-serif-bold',
+    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  }),
+
+  // Monospace (Reserved strictly for financial figures, codes, and Cypher tokens)
   fontMono: Platform.select({
     ios: 'Menlo',
     android: 'monospace',
-    default: 'Courier New, monospace',
+    default: 'SFMono-Regular, Menlo, Monaco, Consolas, monospace',
   }),
 
-  // Hard drop shadows (Zero blur, stark solid offset)
+  // Crisp Solid Drop Shadows (Tactile, non-blurry, elegant offset)
   shadowDefault: Platform.select<ViewStyle>({
     web: {
-      boxShadow: '4px 4px 0px #0A0A0A',
+      boxShadow: '3px 3px 0px #111827',
     } as any,
     default: {
-      shadowColor: '#0A0A0A',
-      shadowOffset: { width: 4, height: 4 },
+      shadowColor: '#111827',
+      shadowOffset: { width: 3, height: 3 },
       shadowOpacity: 1,
       shadowRadius: 0,
-      elevation: 5,
+      elevation: 4,
     },
   }) as ViewStyle,
 
   shadowSm: Platform.select<ViewStyle>({
     web: {
-      boxShadow: '2px 2px 0px #0A0A0A',
+      boxShadow: '2px 2px 0px #111827',
     } as any,
     default: {
-      shadowColor: '#0A0A0A',
+      shadowColor: '#111827',
       shadowOffset: { width: 2, height: 2 },
       shadowOpacity: 1,
       shadowRadius: 0,
-      elevation: 3,
+      elevation: 2,
     },
   }) as ViewStyle,
 
   shadowLg: Platform.select<ViewStyle>({
     web: {
-      boxShadow: '6px 6px 0px #0A0A0A',
+      boxShadow: '4px 4px 0px #111827',
     } as any,
     default: {
-      shadowColor: '#0A0A0A',
-      shadowOffset: { width: 6, height: 6 },
+      shadowColor: '#111827',
+      shadowOffset: { width: 4, height: 4 },
       shadowOpacity: 1,
       shadowRadius: 0,
-      elevation: 7,
+      elevation: 6,
     },
   }) as ViewStyle,
 };

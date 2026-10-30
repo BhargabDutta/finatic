@@ -5,14 +5,13 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  StatusBar,
   Platform,
   Alert,
   TouchableOpacity,
 } from 'react-native';
 import { COLORS } from '../theme/colors';
 import { BRUTALIST } from '../theme/styles';
-import { SMSMessage, ScanStats, FilterCategory, TransactionType } from '../types/sms';
+import { SMSMessage, ScanStats, FilterCategory } from '../types/sms';
 import {
   getStoredSMSMessages,
   getLastScanTimestamp,
@@ -237,14 +236,14 @@ export const HomeScreen: React.FC = () => {
         onResetData={handleResetData}
       />
 
-      {/* Industrial Ticker Tape */}
+      {/* Clean Status Banner */}
       <BrutalistTicker
         statusText={
           activeTab === 'MANDATE_RADAR'
-            ? 'MANDATE RADAR // AUTODEBIT ASSASSIN // NEO4J KNOWLEDGE GRAPH // SILENT BLEED: ₹62,328/YR // 4 CRITICAL THREATS DETECTED'
+            ? 'Active Shield • 4 Threats Detected in Subscriptions • Zero PII Leak'
             : activeTab === 'AI_CHATBOT'
-            ? 'SUBCLEAR AI // FASTAPI RENDER SERVICE // NLP DESCRIPTOR RESOLUTION // MULTI-RAIL RUNBOOKS // 100% SECURE'
-            : `FINATIC RADAR // PRIVACY SHIELD ACTIVE // ${messages.length} AUTOPAY MANDATES SCANNED // ZERO OTPS // ZERO P2P STORED // TOTAL: ₹${(stats?.debitTotal || 0).toLocaleString()}`
+            ? 'SubClear AI Assistant • Multi-Rail Cancellation Runbooks • Ready'
+            : `AutoPay Inbox Filter • Non-Financial SMS & OTPs Excluded • ${messages.length} AutoPay SMS`
         }
       />
 
@@ -256,7 +255,7 @@ export const HomeScreen: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text style={[styles.tabButtonText, activeTab === 'MANDATE_RADAR' && styles.tabButtonTextActive]}>
-            🎯 AUTO-DEBIT
+            🎯 Auto-Debit
           </Text>
         </TouchableOpacity>
 
@@ -266,7 +265,7 @@ export const HomeScreen: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text style={[styles.tabButtonText, activeTab === 'AI_CHATBOT' && styles.tabButtonTextActive]}>
-            🤖 SUBCLEAR AI
+            🤖 SubClear AI
           </Text>
         </TouchableOpacity>
 
@@ -276,7 +275,7 @@ export const HomeScreen: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text style={[styles.tabButtonText, activeTab === 'SMS_FEED' && styles.tabButtonTextActive]}>
-            ⚡ SMS INBOX
+            ⚡ SMS Feed
           </Text>
         </TouchableOpacity>
       </View>
@@ -429,7 +428,7 @@ const styles = StyleSheet.create({
   tabSwitcher: {
     flexDirection: 'row',
     backgroundColor: COLORS.paper,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingTop: 10,
     paddingBottom: 4,
     gap: 8,
@@ -437,25 +436,24 @@ const styles = StyleSheet.create({
   tabButton: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: COLORS.ink,
-    paddingVertical: 10,
+    paddingVertical: 9,
     alignItems: 'center',
     ...BRUTALIST.shadowSm,
   },
   tabButtonActive: {
-    backgroundColor: COLORS.yellow,
+    backgroundColor: COLORS.ink,
     borderColor: COLORS.ink,
   },
   tabButtonText: {
-    fontFamily: BRUTALIST.fontMono,
-    fontSize: 10.5,
-    fontWeight: '900',
+    fontFamily: BRUTALIST.fontSansBold,
+    fontSize: 11.5,
     color: COLORS.ink,
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
   },
   tabButtonTextActive: {
-    color: COLORS.ink,
+    color: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
